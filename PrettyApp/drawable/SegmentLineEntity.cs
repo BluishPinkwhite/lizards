@@ -16,7 +16,7 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
 
         AddLine(Pos.X, (int)_segments[0].Pos.X, Pos.Y, (int)_segments[0].Pos.Y, 0xEE2030);
         AddRect(Pos.X, Pos.Y, 3, 0x3030DD);
-        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 3, 0x30DD30);
+        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 2, 0x30DD30);
 
         for (int i = 0; i < _segments.Length - 1; i++)
         {
@@ -24,8 +24,10 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
             Vector2 end = _segments[i + 1].Pos;
 
             AddLine(start, end, 0xEE2030);
-            AddRect((int)end.X, (int)end.Y, 3, 0x30DD30);
+            AddRect((int)end.X, (int)end.Y, 2, 0x30DD30);
         }
+        
+        AddRect((int)_goal.X, (int)_goal.Y, 1, 0);
     }
 
     public override void Tick()

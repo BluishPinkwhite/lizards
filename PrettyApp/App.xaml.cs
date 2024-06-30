@@ -59,7 +59,7 @@ public partial class App : Application
 
     public void RunSimulation()
     {
-        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 28), () =>
+        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 30), () =>
         {
             foreach (Entity entity in Entities)
             {

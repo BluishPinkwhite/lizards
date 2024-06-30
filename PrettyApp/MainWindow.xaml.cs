@@ -38,7 +38,7 @@ public partial class MainWindow : Window
             null);
 
         image.Source = bm;
-        image.Stretch = Stretch.UniformToFill;
+        image.Stretch = Stretch.None;
         image.HorizontalAlignment = HorizontalAlignment.Left;
         image.VerticalAlignment = VerticalAlignment.Top;
 
@@ -68,8 +68,8 @@ public partial class MainWindow : Window
 
     private void i_MouseMove(object sender, MouseEventArgs e)
     {
-        MouseX = (int)(e.GetPosition(image).X / App.Zoom);
-        MouseY = (int)(e.GetPosition(image).Y / App.Zoom);
+        MouseX = (int)Math.Ceiling(e.GetPosition(image).X / App.Zoom);
+        MouseY = (int)Math.Ceiling(e.GetPosition(image).Y / App.Zoom);
     }
 
 

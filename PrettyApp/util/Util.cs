@@ -51,10 +51,10 @@ public class Util
         // reachable - do FABRIK
         else
         {
-            for (int iteration = 0; iteration <= 3; iteration++)
+            for (int iteration = 0; iteration <= 10; iteration++)
             {
-                // is close enough to goal?
-                if ((segments[^1].Pos - end).Length() < 0.01f)
+                // is close enough to goal? yes -> end
+                if ((segments[^1].Pos - end).Length() < 0.1f)
                     break;
 
                 // backwards solve
@@ -67,7 +67,7 @@ public class Util
 
                 // forwards solve
                 segments[0].Pos = start +
-                                  Vector2.Normalize(segments[0].Pos - start) * segments[0].Length; // move first point to start
+                                  Vector2.Normalize(segments[0].Pos - start) * segments[0].Length; // move first point in front of start
                 for (int i = 0; i < segments.Length - 1; i++)
                 {
                     segments[i + 1].Pos = segments[i].Pos +
