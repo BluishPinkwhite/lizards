@@ -1,14 +1,10 @@
-﻿using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using PrettyApp.drawable;
+using PrettyApp.util;
 
 namespace PrettyApp;
 
@@ -21,7 +17,7 @@ public partial class MainWindow : Window
     public static WriteableBitmap bm { get; private set; }
     public static int MouseX { get; private set; }
     public static int MouseY { get; private set; }
-    
+
 
     public MainWindow()
     {
@@ -54,6 +50,7 @@ public partial class MainWindow : Window
 
         App app = (App)Application.Current;
         app.PrepareSimulation();
+        ClearRenderedScene();
         app.RunSimulation();
     }
 
@@ -71,12 +68,8 @@ public partial class MainWindow : Window
 
     private void i_MouseMove(object sender, MouseEventArgs e)
     {
-        MouseX = (int)Math.Ceiling(e.GetPosition(image).X / App.Zoom);
-        MouseY = (int)Math.Ceiling(e.GetPosition(image).Y / App.Zoom);
-
-        Console.Out.WriteLine(MouseX);
-        
-        //DrawPixels((int)Math.Ceiling(e.GetPosition(image).X / Zoom), (int)Math.Ceiling(e.GetPosition(image).Y / Zoom));
+        MouseX = (int)(e.GetPosition(image).X / App.Zoom);
+        MouseY = (int)(e.GetPosition(image).Y / App.Zoom);
     }
 
 
@@ -102,40 +95,77 @@ public partial class MainWindow : Window
             {
                 foreach (Entity entity in entities)
                 {
-                    List<(int, int, int)> list = entity.GetPixelData();
-                    int minX = list[0].Item1, minY = list[0].Item2, maxX = list[0].Item1, maxY = list[0].Item2;
+                    List<Pixel> list = entity.GetPixelData();
+                    BoundingBox bounds = entity.GetBoundingBox();
 
-                    foreach ((int column, int row, int color) in list)
+                    if (entity.HasJustUpdated)
                     {
-                        if (column < minX)
-                        {
-                            minX = column;
-                        }
-                        else if (column > maxX)
-                        {
-                            maxX = column;
-                        }
+                        entity.HasJustUpdated = false;
+                        BoundingBox lastBounds = entity.GetLastBoundingBox();
+                        
+                        ResetBackground(lastBounds);
+                        bm.AddDirtyRect(new Int32Rect(lastBounds.X, lastBounds.Y, lastBounds.Width() + 1, lastBounds.Height() + 1));
+                    }
 
-                        if (row < minY)
+                    ResetBackground(bounds);
+
+                    foreach (Pixel p in list)
+                    {
+                        if (p.X < 0 || p.Y < 0 || p.X >= bm.PixelWidth || p.Y > bm.PixelHeight)
                         {
-                            minY = row;
-                        }
-                        else if (row > maxY)
-                        {
-                            maxY = row;
+                            Console.Out.WriteLine($"Pixel outside image: ({p.X},{p.Y}), {p.Color:X}, skipping...");
+                            continue;
                         }
 
                         IntPtr pBackBuffer = bm.BackBuffer;
 
-                        pBackBuffer += row * bm.BackBufferStride;
-                        pBackBuffer += column * 4;
+                        pBackBuffer += p.Y * bm.BackBufferStride;
+                        pBackBuffer += p.X * 4;
 
-                        *((int*)pBackBuffer) = color;
+                        *((int*)pBackBuffer) = p.Color;
                     }
 
-                    bm.AddDirtyRect(new Int32Rect(minX, minY, maxX - minX + 1, maxY - minY + 1));
+                    bm.AddDirtyRect(new Int32Rect(bounds.X, bounds.Y, bounds.Width() + 1, bounds.Height() + 1));
                 }
             }
+        }
+        finally
+        {
+            bm.Unlock();
+        }
+    }
+
+
+    // CALL ONLY WHEN WritableBitmap IS LOCKED
+    private static void ResetBackground(BoundingBox bounds)
+    {
+        unsafe
+        {
+            // TODO: block by block cache processing?
+            for (int y = bounds.Y; y <= bounds.Ey; y++)
+            {
+                for (int x = bounds.X; x <= bounds.Ex; x++)
+                {
+                    IntPtr pBackBuffer = bm.BackBuffer;
+
+                    pBackBuffer += y * bm.BackBufferStride;
+                    pBackBuffer += x * 4;
+
+                    *((int*)pBackBuffer) = (int)App.Tiles.Air;
+                }
+            }
+        }
+    }
+
+    private static void ClearRenderedScene()
+    {
+        try
+        {
+            bm.Lock();
+
+            ResetBackground(new BoundingBox(0, 0, bm.PixelWidth - 1, bm.PixelHeight - 1));
+
+            bm.AddDirtyRect(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight));
         }
         finally
         {

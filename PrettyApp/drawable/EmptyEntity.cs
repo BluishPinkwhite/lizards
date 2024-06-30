@@ -1,12 +1,16 @@
-﻿namespace PrettyApp.drawable;
+﻿using System.Drawing;
+using PrettyApp.util;
+
+namespace PrettyApp.drawable;
 
 public class EmptyEntity : Entity
 {
-    public EmptyEntity(int x, int y, List<(int, int, int)> pixelData) : base(x, y, pixelData)
+    public EmptyEntity(Point pos, List<Pixel> pixelData) : base(pos)
     {
+        PixelData = pixelData;
     }
 
-    public EmptyEntity(int x, int y) : base(x, y)
+    public EmptyEntity(Point pos) : base(pos)
     {
     }
 

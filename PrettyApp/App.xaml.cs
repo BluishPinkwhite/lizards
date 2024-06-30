@@ -1,5 +1,8 @@
-﻿using System.Windows;
+﻿using System.Numerics;
+using System.Windows;
 using PrettyApp.drawable;
+using PrettyApp.util;
+using Point = System.Drawing.Point;
 
 namespace PrettyApp;
 
@@ -8,9 +11,9 @@ namespace PrettyApp;
 /// </summary>
 public partial class App : Application
 {
-    public const double Zoom = 8;
+    public const double Zoom = 2;
     public readonly List<Entity> Entities = new();
-    private List<(int, int, int)> tiles;
+    private List<Pixel> tiles;
 
     public enum Tiles
     {
@@ -24,25 +27,23 @@ public partial class App : Application
 
     public void PrepareSimulation()
     {
-        // tiles = GenerateTerrain();
-        tiles = new();
-        for (int i = 0; i < PrettyApp.MainWindow.bm.PixelWidth; i++)
-        {
-            for (int j = 0; j < PrettyApp.MainWindow.bm.PixelHeight; j++)
-            {
-                tiles.Add((i, j, (int)Tiles.Air));
-            }
-        }
+        // LineEntity line = new LineEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2));
+        // Entities.Add(line);
 
-
-        LineEntity line =
-            new LineEntity(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2);
-        Entities.Add(line);
+        SegmentLineEntity s = new SegmentLineEntity(
+            new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2),
+            [
+                new Segment(new Vector2(2), 15),
+                new Segment(new Vector2(3), 20),
+                new Segment(new Vector2(4), 40),
+                new Segment(new Vector2(5), 30)
+            ]);
+        Entities.Add(s);
     }
 
     public void RunSimulation()
     {
-        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 35), () =>
+        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 28), () =>
         {
             foreach (Entity entity in Entities)
             {
@@ -50,18 +51,17 @@ public partial class App : Application
                 entity.UpdatePixelData();
             }
 
-            PrettyApp.MainWindow.DrawPixels([new EmptyEntity(0,0,tiles)]);
             PrettyApp.MainWindow.DrawPixels(Entities);
         });
 
-        // RunInBackground(TimeSpan.FromMilliseconds(500.0), () =>
-        // {
-        //     foreach (Entity entity in Entities)
-        //     {
-        //         entity.TickSecond();
-        //         PrettyApp.MainWindow.DrawPixels(Entities);
-        //     }
-        // });
+        RunInBackground(TimeSpan.FromMilliseconds(500.0), () =>
+        {
+            foreach (Entity entity in Entities)
+            {
+                entity.TickSecond();
+                PrettyApp.MainWindow.DrawPixels(Entities);
+            }
+        });
     }
 
     async Task RunInBackground(TimeSpan timeSpan, Action action)
