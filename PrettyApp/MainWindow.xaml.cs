@@ -96,12 +96,15 @@ public partial class MainWindow : Window
                 foreach (Entity entity in entities)
                 {
                     List<Pixel> list = entity.GetPixelData();
+                    
                     BoundingBox bounds = entity.GetBoundingBox();
+                    bounds.ClampToScreen(bm.PixelWidth, bm.PixelHeight);
 
                     if (entity.HasJustUpdated)
                     {
                         entity.HasJustUpdated = false;
                         BoundingBox lastBounds = entity.GetLastBoundingBox();
+                        lastBounds.ClampToScreen(bm.PixelWidth, bm.PixelHeight);
                         
                         ResetBackground(lastBounds);
                         bm.AddDirtyRect(new Int32Rect(lastBounds.X, lastBounds.Y, lastBounds.Width() + 1, lastBounds.Height() + 1));
@@ -142,6 +145,7 @@ public partial class MainWindow : Window
         unsafe
         {
             // TODO: block by block cache processing?
+            
             for (int y = bounds.Y; y <= bounds.Ey; y++)
             {
                 for (int x = bounds.X; x <= bounds.Ex; x++)

@@ -25,4 +25,12 @@ public struct BoundingBox
     {
         return Ey - Y;
     }
+
+    public void ClampToScreen(int screenWidth, int screenHeight)
+    {
+        X = Math.Clamp(X, 0, screenWidth);
+        Ex = Math.Clamp(Ex, 0, screenWidth);
+        Y = Math.Clamp(Y, 0, screenHeight);
+        Ey = Math.Clamp(Ey, 0, screenHeight);
+    }
 }

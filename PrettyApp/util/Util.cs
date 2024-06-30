@@ -49,21 +49,31 @@ public class Util
             }
         }
         // reachable - do FABRIK
-        // else
-        // {
-        //     for (int iteration = 0; iteration <= 3; iteration++)
-        //     {
-        //         // is close enough to goal?
-        //         if ((segments[^1].Pos - end).Length() < 0.01f)
-        //             break;
-        //         
-        //         // backwards solve
-        //         segments[^1].Pos = end; // move last point to goal
-        //         for (int i = segments.Length - 1; i > 0; i--)
-        //         {
-        //             segments[i-1].Pos = Vector2.Normalize(segments[i].Pos - segments[i - 1].Pos) * segments[i].Length;
-        //         }
-        //     }
-        // }
+        else
+        {
+            for (int iteration = 0; iteration <= 3; iteration++)
+            {
+                // is close enough to goal?
+                if ((segments[^1].Pos - end).Length() < 0.01f)
+                    break;
+
+                // backwards solve
+                segments[^1].Pos = new Vector2(end.X, end.Y); // move last point to goal
+                for (int i = segments.Length - 1; i > 0; i--)
+                {
+                    segments[i - 1].Pos = segments[i].Pos -
+                                          Vector2.Normalize(segments[i].Pos - segments[i - 1].Pos) * segments[i].Length;
+                }
+
+                // forwards solve
+                segments[0].Pos = start +
+                                  Vector2.Normalize(segments[0].Pos - start) * segments[0].Length; // move first point to start
+                for (int i = 0; i < segments.Length - 1; i++)
+                {
+                    segments[i + 1].Pos = segments[i].Pos +
+                                          Vector2.Normalize(segments[i + 1].Pos - segments[i].Pos) * segments[i + 1].Length;
+                }
+            }
+        }
     }
 }

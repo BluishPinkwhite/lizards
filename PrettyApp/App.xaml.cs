@@ -33,10 +33,26 @@ public partial class App : Application
         SegmentLineEntity s = new SegmentLineEntity(
             new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2),
             [
-                new Segment(new Vector2(2), 15),
-                new Segment(new Vector2(3), 20),
-                new Segment(new Vector2(4), 40),
-                new Segment(new Vector2(5), 30)
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(4), 10),
+                new Segment(new Vector2(5), 10)
             ]);
         Entities.Add(s);
     }

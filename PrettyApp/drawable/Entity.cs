@@ -43,6 +43,11 @@ public abstract class Entity(Point pos)
     
     protected void AddPixel(int x, int y, int color)
     {
+        if (x < 0 || y < 0)
+        {
+            return;
+        }
+        
         PixelData.Add(new Pixel(x, y, color));
 
         if (x < Bounds.X)

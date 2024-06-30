@@ -16,6 +16,7 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
 
         AddLine(Pos.X, (int)_segments[0].Pos.X, Pos.Y, (int)_segments[0].Pos.Y, 0xEE2030);
         AddRect(Pos.X, Pos.Y, 3, 0x3030DD);
+        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 3, 0x30DD30);
 
         for (int i = 0; i < _segments.Length - 1; i++)
         {
