@@ -6,8 +6,8 @@ namespace PrettyApp.util;
 public class Util
 {
     public static readonly float PI = (float)Math.PI;
-    
-    
+
+
     public static int LerpColor(int color1, int color2, float progress)
     {
         int r1 = color1 >> 16;
@@ -54,14 +54,19 @@ public class Util
         // reachable - do FABRIK
         else
         {
-            for (int iteration = 0; iteration <= 5; iteration++)
+            const float tolerance = 0.8f; // Tolerance for endpoint fitting
+            const int maxIterations = 20; // Allow more iterations for gradual convergence
+            const float moveFraction = 0.5f; // Fraction of distance to move towards target in each iteration
+
+            for (int iteration = 0; iteration < maxIterations; iteration++)
             {
-                // is close enough to goal? yes -> end
-                if ((segments[^1].Pos - end).Length() < 0.1f)
+                // Check if the end is close enough to the goal
+                if ((segments[^1].Pos - end).Length() < tolerance)
                     break;
 
-                // backwards solve
-                segments[^1].Pos = new Vector2(end.X, end.Y); // move last point to goal
+                // Backwards solve
+                segments[^1].Pos =
+                    Vector2.Lerp(segments[^1].Pos, end, moveFraction); // Move last point slightly towards the goal
                 for (int i = segments.Length - 1; i > 0; i--)
                 {
                     Vector2 dir = Vector2.Normalize(segments[i].Pos - segments[i - 1].Pos);
@@ -70,61 +75,60 @@ public class Util
                     {
                         Vector2 nextDir = Vector2.Normalize(segments[i + 1].Pos - segments[i].Pos);
                         float dot = Vector2.Dot(dir, nextDir);
-                        float angle = (float)Math.Acos(dot) * 180f / PI;
-                        
-                        // ChatGPT: Calculate signed angle
+                        float angle = (float)Math.Acos(Math.Clamp(dot, -1f, 1f));
+
+                        // Calculate signed angle
                         float cross = dir.X * nextDir.Y - dir.Y * nextDir.X; // 2D cross product to get the sign
                         float signedAngle = angle * Math.Sign(cross);
 
-                        if (Math.Abs(angle) > segments[i].AngleFreedom)
+                        if (Math.Abs(signedAngle) > segments[i].AngleFreedom * Math.PI / 180)
                         {
-                            float clampedAngle = Math.Sign(signedAngle) * segments[i].AngleFreedom;
-                            float clampedAngleRad = clampedAngle * PI / 180f;
-                            
-                            double sin = Math.Sin(clampedAngleRad);
-                            double cos = Math.Cos(clampedAngleRad);
+                            float clampedAngleRad = Math.Sign(signedAngle) * segments[i].AngleFreedom * PI / 180;
 
-                            // Rotate dir by clamped angle
-                            dir = new Vector2((float)(dir.X * cos - dir.Y * sin), (float)(dir.X * sin + dir.Y * cos));
+                            // Smoothly rotate dir towards the clamped direction
+                            dir = Vector2.Lerp(dir, new Vector2(
+                                (float)(dir.X * Math.Cos(clampedAngleRad) - dir.Y * Math.Sin(clampedAngleRad)),
+                                (float)(dir.X * Math.Sin(clampedAngleRad) + dir.Y * Math.Cos(clampedAngleRad))
+                            ), moveFraction);
+
+                            dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
                         }
                     }
 
-                    segments[i - 1].Pos = segments[i].Pos - dir * segments[i].Length;
+                    segments[i - 1].Pos = segments[i].Pos - dir * segments[i - 1].Length;
                 }
 
-                
-                // forwards solve
-                segments[0].Pos = new Vector2(start.X, start.Y);// +
-                                  //Vector2.Normalize(segments[0].Pos - start) *
-                                  //segments[0].Length; // move first point in front of start
-                
+                // Forwards solve
+                segments[0].Pos =
+                    Vector2.Lerp(segments[0].Pos, start, moveFraction); // Move first point slightly towards the start
                 for (int i = 0; i < segments.Length - 1; i++)
                 {
                     Vector2 dir = Vector2.Normalize(segments[i + 1].Pos - segments[i].Pos);
-                    
+
                     if (i > 0)
                     {
                         Vector2 prevDir = Vector2.Normalize(segments[i].Pos - segments[i - 1].Pos);
                         float dot = Vector2.Dot(prevDir, dir);
-                        float angle = (float)Math.Acos(dot) * 180f / PI;
-                        
+                        float angle = (float)Math.Acos(Math.Clamp(dot, -1f, 1f));
+
                         // Calculate signed angle
                         float cross = prevDir.X * dir.Y - prevDir.Y * dir.X; // 2D cross product to get the sign
                         float signedAngle = angle * Math.Sign(cross);
 
-                        if (Math.Abs(angle) > segments[i].AngleFreedom)
+                        if (Math.Abs(signedAngle) > segments[i].AngleFreedom * Math.PI / 180)
                         {
-                            float clampedAngle = Math.Sign(signedAngle) * segments[i].AngleFreedom;
-                            float clampedAngleRad = clampedAngle * PI / 180f;
-                            
-                            double sin = Math.Sin(clampedAngleRad);
-                            double cos = Math.Cos(clampedAngleRad);
+                            float clampedAngleRad = Math.Sign(signedAngle) * segments[i].AngleFreedom * PI / 180;
 
-                            // Rotate dir by clamped angle
-                            dir = new Vector2((float)(dir.X * cos - dir.Y * sin), (float)(dir.X * sin + dir.Y * cos));
+                            // Smoothly rotate dir towards the clamped direction
+                            dir = Vector2.Lerp(dir, new Vector2(
+                                (float)(dir.X * Math.Cos(clampedAngleRad) - dir.Y * Math.Sin(clampedAngleRad)),
+                                (float)(dir.X * Math.Sin(clampedAngleRad) + dir.Y * Math.Cos(clampedAngleRad))
+                            ), moveFraction);
+
+                            dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
                         }
                     }
-                    
+
                     segments[i + 1].Pos = segments[i].Pos + dir * segments[i + 1].Length;
                 }
             }

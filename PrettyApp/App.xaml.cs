@@ -30,26 +30,30 @@ public partial class App : Application
         // LineEntity line = new LineEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2));
         // Entities.Add(line);
 
+        int len = 10;
+        int angleFreedom = 100;
+
         SegmentLineEntity s = new SegmentLineEntity(
             new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2),
             [
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
-                new Segment(new Vector2(4), 10, 60),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2(4), len, angleFreedom),
             ]);
         Entities.Add(s);
     }
