@@ -98,13 +98,13 @@ public partial class MainWindow : Window
                     List<Pixel> list = entity.GetPixelData();
                     
                     BoundingBox bounds = entity.GetBoundingBox();
-                    bounds.ClampToScreen(bm.PixelWidth, bm.PixelHeight);
+                    bounds.ClampToScreen(bm.PixelWidth-1, bm.PixelHeight-1);
 
                     if (entity.HasJustUpdated)
                     {
                         entity.HasJustUpdated = false;
                         BoundingBox lastBounds = entity.GetLastBoundingBox();
-                        lastBounds.ClampToScreen(bm.PixelWidth, bm.PixelHeight);
+                        lastBounds.ClampToScreen(bm.PixelWidth-1, bm.PixelHeight-1);
                         
                         ResetBackground(lastBounds);
                         bm.AddDirtyRect(new Int32Rect(lastBounds.X, lastBounds.Y, lastBounds.Width() + 1, lastBounds.Height() + 1));
@@ -114,16 +114,19 @@ public partial class MainWindow : Window
 
                     foreach (Pixel p in list)
                     {
-                        if (p.X < 0 || p.Y < 0 || p.X >= bm.PixelWidth || p.Y > bm.PixelHeight)
+                        int X = p.X % bm.PixelWidth;
+                        int Y = p.Y % bm.PixelHeight;
+                        
+                        if (X < 0 || Y < 0 || X >= bm.PixelWidth || Y > bm.PixelHeight)
                         {
-                            Console.Out.WriteLine($"Pixel outside image: ({p.X},{p.Y}), {p.Color:X}, skipping...");
+                            Console.Out.WriteLine($"Pixel outside image: ({X},{Y}), {p.Color:X}, skipping...");
                             continue;
                         }
 
                         IntPtr pBackBuffer = bm.BackBuffer;
 
-                        pBackBuffer += p.Y * bm.BackBufferStride;
-                        pBackBuffer += p.X * 4;
+                        pBackBuffer += Y * bm.BackBufferStride;
+                        pBackBuffer += X * 4;
 
                         *((int*)pBackBuffer) = p.Color;
                     }
