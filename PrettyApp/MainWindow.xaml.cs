@@ -19,7 +19,9 @@ public partial class MainWindow : Window
 {
     private static Image image;
     public static WriteableBitmap bm { get; private set; }
-
+    public static int MouseX { get; private set; }
+    public static int MouseY { get; private set; }
+    
 
     public MainWindow()
     {
@@ -69,6 +71,11 @@ public partial class MainWindow : Window
 
     private void i_MouseMove(object sender, MouseEventArgs e)
     {
+        MouseX = (int)Math.Ceiling(e.GetPosition(image).X / App.Zoom);
+        MouseY = (int)Math.Ceiling(e.GetPosition(image).Y / App.Zoom);
+
+        Console.Out.WriteLine(MouseX);
+        
         //DrawPixels((int)Math.Ceiling(e.GetPosition(image).X / Zoom), (int)Math.Ceiling(e.GetPosition(image).Y / Zoom));
     }
 
@@ -85,7 +92,7 @@ public partial class MainWindow : Window
     }
 
 
-    public static void DrawPixels(IEnumerable<IPixelable> entities)
+    public static void DrawPixels(IEnumerable<Entity> entities)
     {
         try
         {
@@ -93,30 +100,42 @@ public partial class MainWindow : Window
 
             unsafe
             {
-                foreach (IPixelable entity in entities)
+                foreach (Entity entity in entities)
                 {
                     List<(int, int, int)> list = entity.GetPixelData();
+                    int minX = list[0].Item1, minY = list[0].Item2, maxX = list[0].Item1, maxY = list[0].Item2;
 
                     foreach ((int column, int row, int color) in list)
                     {
+                        if (column < minX)
+                        {
+                            minX = column;
+                        }
+                        else if (column > maxX)
+                        {
+                            maxX = column;
+                        }
+
+                        if (row < minY)
+                        {
+                            minY = row;
+                        }
+                        else if (row > maxY)
+                        {
+                            maxY = row;
+                        }
+
                         IntPtr pBackBuffer = bm.BackBuffer;
 
                         pBackBuffer += row * bm.BackBufferStride;
                         pBackBuffer += column * 4;
 
-                        // int color = 0x820000;
-                        //
-                        // int color_data = 255 << 16; // R
-                        // color_data |= 128 << 8;   // G
-                        // color_data |= 255 << 0;
-
-                        *((int*) pBackBuffer) = color;
-                    
-                        bm.AddDirtyRect(new Int32Rect(column, row, 1, 1));
+                        *((int*)pBackBuffer) = color;
                     }
+
+                    bm.AddDirtyRect(new Int32Rect(minX, minY, maxX - minX + 1, maxY - minY + 1));
                 }
             }
-
         }
         finally
         {

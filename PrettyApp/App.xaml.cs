@@ -1,8 +1,5 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 using PrettyApp.drawable;
-using PrettyApp.plants;
 
 namespace PrettyApp;
 
@@ -11,8 +8,8 @@ namespace PrettyApp;
 /// </summary>
 public partial class App : Application
 {
-    public const double Zoom = 12;
-    public readonly List<Plant> PlantList = new();
+    public const double Zoom = 8;
+    public readonly List<Entity> Entities = new();
     private List<(int, int, int)> tiles;
 
     public enum Tiles
@@ -33,40 +30,40 @@ public partial class App : Application
         {
             for (int j = 0; j < PrettyApp.MainWindow.bm.PixelHeight; j++)
             {
-                    tiles.Add((i, j, (int)Tiles.Air));
+                tiles.Add((i, j, (int)Tiles.Air));
             }
         }
 
-        Plant p = new Plant(
-            PrettyApp.MainWindow.bm.PixelWidth / 2,
-            (int)(PrettyApp.MainWindow.bm.PixelHeight * 0.85));
-        p.Parts.Add(new Seed(p));
-        PlantList.Add(p);
+
+        LineEntity line =
+            new LineEntity(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2);
+        Entities.Add(line);
     }
 
     public void RunSimulation()
     {
-        RunInBackground(TimeSpan.FromMilliseconds(1000.0/60), () =>
+        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 35), () =>
         {
-            foreach (Plant plant in PlantList)
+            foreach (Entity entity in Entities)
             {
-                plant.TickParts();
+                entity.Tick();
+                entity.UpdatePixelData();
             }
 
-            PrettyApp.MainWindow.DrawPixels([new EmptyPixelable(tiles)]);
-            PrettyApp.MainWindow.DrawPixels(PlantList);
+            PrettyApp.MainWindow.DrawPixels([new EmptyEntity(0,0,tiles)]);
+            PrettyApp.MainWindow.DrawPixels(Entities);
         });
-        
-        RunInBackground(TimeSpan.FromMilliseconds(500.0), () =>
-        {
-            foreach (Plant plant in PlantList)
-            {
-                plant.TickPartsSecond();
-                PrettyApp.MainWindow.DrawPixels(PlantList);
-            }
-        });
+
+        // RunInBackground(TimeSpan.FromMilliseconds(500.0), () =>
+        // {
+        //     foreach (Entity entity in Entities)
+        //     {
+        //         entity.TickSecond();
+        //         PrettyApp.MainWindow.DrawPixels(Entities);
+        //     }
+        // });
     }
-    
+
     async Task RunInBackground(TimeSpan timeSpan, Action action)
     {
         var periodicTimer = new PeriodicTimer(timeSpan);
