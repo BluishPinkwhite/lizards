@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -48,10 +49,20 @@ public partial class MainWindow : Window
 
         this.MouseWheel += w_OnMouseWheel;
 
+        MouseX = bm.PixelWidth/2;
+        MouseY = bm.PixelHeight/2;
+
         App app = (App)Application.Current;
-        app.PrepareSimulation();
-        ClearRenderedScene();
-        app.RunSimulation();
+        try
+        {
+            app.PrepareSimulation();
+            ClearRenderedScene();
+            app.RunSimulation();
+        }
+        catch (Exception e)
+        {
+            Console.Error.WriteLine(e.ToString());
+        } 
     }
 
     private void w_OnMouseWheel(object sender, MouseWheelEventArgs e)
@@ -99,6 +110,8 @@ public partial class MainWindow : Window
                     
                     BoundingBox bounds = entity.GetBoundingBox();
                     bounds.ClampToScreen(bm.PixelWidth-1, bm.PixelHeight-1);
+                    
+                    // TODO combine bound rectangles together?
 
                     if (entity.HasJustUpdated)
                     {
@@ -114,10 +127,10 @@ public partial class MainWindow : Window
 
                     foreach (Pixel p in list)
                     {
-                        int X = p.X % bm.PixelWidth;
-                        int Y = p.Y % bm.PixelHeight;
+                        int X = p.X;
+                        int Y = p.Y;
                         
-                        if (X < 0 || Y < 0 || X >= bm.PixelWidth || Y > bm.PixelHeight)
+                        if (X < 0 || Y < 0 || X >= bm.PixelWidth || Y >= bm.PixelHeight)
                         {
                             Console.Out.WriteLine($"Pixel outside image: ({X},{Y}), {p.Color:X}, skipping...");
                             continue;

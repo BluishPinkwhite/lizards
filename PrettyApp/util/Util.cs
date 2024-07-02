@@ -31,12 +31,8 @@ public class Util
         return (int)((i1 - i2) * progress) + i1;
     }
 
-    public static void DoFABRIK(Point startPoint, Point goalPoint, Segment[] segments)
+    public static void DoFABRIK(Vector2 start, Vector2 end, Segment[] segments)
     {
-        // map to V2
-        Vector2 start = new Vector2(startPoint.X, startPoint.Y);
-        Vector2 end = new Vector2(goalPoint.X, goalPoint.Y);
-
         Vector2 direction = end - start;
 
         // is goal reachable?
@@ -54,19 +50,16 @@ public class Util
         // reachable - do FABRIK
         else
         {
-            DoBackwardReaching(goalPoint, segments);
-            DoForwardReaching(startPoint, segments);
+            DoBackwardReaching(end, segments);
+            DoForwardReaching(start, segments);
         }
     }
 
-    public static void DoBackwardReaching(Point goalPoint, Segment[] segments)
+    public static void DoBackwardReaching(Vector2 end, Segment[] segments)
     {
-        // map to V2
-        Vector2 end = new Vector2(goalPoint.X, goalPoint.Y);
-
         const float tolerance = 0.8f; // Tolerance for endpoint fitting
         const int maxIterations = 20; // Allow more iterations for gradual convergence
-        const float moveFraction = 0.5f; // Fraction of distance to move towards target in each iteration
+        const float moveFraction = 1f; // Fraction of distance to move towards target in each iteration
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -76,7 +69,7 @@ public class Util
 
             // Backwards solve
             segments[^1].Pos =
-                Vector2.Lerp(segments[^1].Pos, end, moveFraction); // Move last point slightly towards the goal
+                Vector2.Lerp(segments[^1].Pos, end, .5f); // Move last point slightly towards the goal
             for (int i = segments.Length - 1; i > 0; i--)
             {
                 Vector2 dir = Vector2.Normalize(segments[i].Pos - segments[i - 1].Pos);
@@ -93,7 +86,7 @@ public class Util
 
                     if (Math.Abs(signedAngle) > segments[i].AngleFreedom * Math.PI / 180)
                     {
-                        float clampedAngleRad = Math.Sign(signedAngle) * segments[i].AngleFreedom * PI / 180;
+                        float clampedAngleRad = -Math.Sign(signedAngle) * segments[i].AngleFreedom * PI / 180;
 
                         // Smoothly rotate dir towards the clamped direction
                         dir = Vector2.Lerp(dir, new Vector2(
@@ -110,19 +103,18 @@ public class Util
         }
     }
 
-    public static void DoForwardReaching(Point startPoint, Segment[] segments)
+    public static void DoForwardReaching(Vector2 start, Segment[] segments)
     {
-        // map to V2
-        Vector2 start = new Vector2(startPoint.X, startPoint.Y);
-
         const int maxIterations = 20; // Allow more iterations for gradual convergence
-        const float moveFraction = 0.5f; // Fraction of distance to move towards target in each iteration
+        const float moveFraction = 1f; // Fraction of distance to move towards target in each iteration
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
             // Forwards solve
             segments[0].Pos =
-                Vector2.Lerp(segments[0].Pos, start, moveFraction); // Move first point slightly towards the start
+                Vector2.Lerp(segments[0].Pos, start, .5f); // Move first point slightly towards the start
+
+
             for (int i = 0; i < segments.Length - 1; i++)
             {
                 Vector2 dir = Vector2.Normalize(segments[i + 1].Pos - segments[i].Pos);
@@ -137,9 +129,9 @@ public class Util
                     float cross = prevDir.X * dir.Y - prevDir.Y * dir.X; // 2D cross product to get the sign
                     float signedAngle = angle * Math.Sign(cross);
 
-                    if (Math.Abs(signedAngle) > segments[i].AngleFreedom * Math.PI / 180)
+                    if (Math.Abs(signedAngle) > segments[i].AngleFreedom * PI / 180)
                     {
-                        float clampedAngleRad = Math.Sign(signedAngle) * segments[i].AngleFreedom * PI / 180;
+                        float clampedAngleRad = -Math.Sign(signedAngle) * segments[i].AngleFreedom * PI / 180;
 
                         // Smoothly rotate dir towards the clamped direction
                         dir = Vector2.Lerp(dir, new Vector2(

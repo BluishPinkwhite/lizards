@@ -31,29 +31,26 @@ public partial class App : Application
         // Entities.Add(line);
 
         int len = 10;
-        int angleFreedom = 100;
+        int angleFreedom = 20;
+        int d = 0;
 
         SegmentLineEntity s = new SegmentLineEntity(
             new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2),
             [
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
-                new Segment(new Vector2(4), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
             ]);
         Entities.Add(s);
     }
@@ -62,21 +59,35 @@ public partial class App : Application
     {
         RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 30), () =>
         {
-            foreach (Entity entity in Entities)
+            try
             {
-                entity.Tick();
-                entity.UpdatePixelData();
-            }
+                foreach (Entity entity in Entities)
+                {
+                    entity.Tick();
+                    entity.UpdatePixelData();
+                }
 
-            PrettyApp.MainWindow.DrawPixels(Entities);
+                PrettyApp.MainWindow.DrawPixels(Entities);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.ToString());
+            }
         });
 
-        RunInBackground(TimeSpan.FromMilliseconds(500.0), () =>
+        RunInBackground(TimeSpan.FromMilliseconds(1000.0), () =>
         {
-            foreach (Entity entity in Entities)
+            try
             {
-                entity.TickSecond();
-                PrettyApp.MainWindow.DrawPixels(Entities);
+                foreach (Entity entity in Entities)
+                {
+                    entity.TickSecond();
+                    PrettyApp.MainWindow.DrawPixels(Entities);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e.ToString());
             }
         });
     }
