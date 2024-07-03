@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -186,8 +185,9 @@ public partial class MainWindow : Window
 
 
                 // draw entities over reset background
-                foreach (Entity entity in entities)
+                for (int i = entities.Count - 1; i >= 0; i--)
                 {
+                    Entity entity = entities[i];
                     List<Pixel> list = entity.GetPixelData();
 
                     foreach (Pixel p in list)

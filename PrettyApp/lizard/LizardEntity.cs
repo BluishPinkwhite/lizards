@@ -9,20 +9,30 @@ public class LizardEntity : Entity
 {
     private Vector2 _goal = new(100, 100); // the final destination the entity wants to reach
     private Vector2 _stepGoal = new(100, 100); // the eased-in step of the final goal
-    private Vector2 _vel = new(14, 6);
-    private float speed = 5;
-    
-    
+    private Vector2 _vel = new(7, 3);
+    private float speed = 2.5f;
+
+
     internal LizardBody Body;
     internal SegmentLineEntity Tail;
+    internal LizardLeg[] Legs;
 
-    
+
     public LizardEntity(Point pos) : base(pos)
     {
         App.Entities.Add(this);
 
         Body = new LizardBody(this);
         Tail = new LizardTail(this);
+
+        Legs =
+        [
+            // order of legs matters!
+            new LizardLeg(this, 1, -Util.PI / 2.5f),
+            new LizardLeg(this, 6, -Util.PI / 2.5f),
+            new LizardLeg(this, 6, Util.PI / 2.5f),
+            new LizardLeg(this, 1, Util.PI / 2.5f),
+        ];
     }
 
 
@@ -44,27 +54,50 @@ public class LizardEntity : Entity
 
         if (_goal.Y <= -sizeOffset || _goal.Y >= MainWindow.bm.PixelHeight + sizeOffset)
             _vel.Y *= -1;
-        
 
-        UpdateRequired = true;
-        
-        CalculateStepGoal();
-        Body.Goal = _stepGoal;
-        
+        // move goal
         Pos.X = (int)_goal.X;
         Pos.Y = (int)_goal.Y;
+
+        // update self rendering
+        UpdateRequired = true;
+
+        // allow most-stretched leg to step over
+        float slowDownFactor = 1;
+        int mostStretchedLegIndex = 0;
+
+        for (int i = 0; i < Legs.Length; i++)
+        {
+            LizardLeg leg = Legs[i];
+            leg.canMoveFoot = false;
+
+            // find most stretched leg
+            if (leg.currentStretch > Legs[mostStretchedLegIndex].currentStretch)
+                mostStretchedLegIndex = i;
+
+            if (leg.currentStretch > 1)
+                slowDownFactor *= 0.8f;
+        }
+
+        // diagonal legs are allowed to step over
+        Legs[mostStretchedLegIndex].canMoveFoot = true;
+        Legs[(mostStretchedLegIndex + 2) % 4].canMoveFoot = true;
+
+
+        // tell body where to move
+        // speed is halted by high foot stretch
+        CalculateStepGoal();
+        Body.Goal = Body._segments[0].Pos + _stepGoal * slowDownFactor;
     }
 
     public override void TickSecond()
     {
-        
     }
-    
+
     private void CalculateStepGoal()
     {
         Vector2 stepV = new(Body._segments[0].Pos.X, Body._segments[0].Pos.Y);
-
         Vector2 goalDir = Vector2.Normalize(_goal - stepV); // direction to goal from head
-        _stepGoal = stepV + Vector2.Normalize(goalDir) * speed;
+        _stepGoal = Vector2.Normalize(goalDir) * speed;
     }
 }

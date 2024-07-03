@@ -63,14 +63,13 @@ public partial class App : Application
             }
         });
 
-        RunInBackground(TimeSpan.FromMilliseconds(1000.0), () =>
+        RunInBackground(TimeSpan.FromMilliseconds(125.0), () =>
         {
             try
             {
                 foreach (Entity entity in Entities)
                 {
                     entity.TickSecond();
-                    PrettyApp.MainWindow.DrawPixels(Entities);
                 }
             }
             catch (Exception e)

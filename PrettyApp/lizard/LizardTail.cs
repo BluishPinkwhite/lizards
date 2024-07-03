@@ -5,6 +5,10 @@ using PrettyApp.util;
 
 namespace PrettyApp.lizard;
 
+/**
+ * Connected at the end of Body. (first segment of tail follows last segment of body using Forward IK)
+ * 
+ */
 public class LizardTail : SegmentLineEntity
 {
     protected LizardEntity Parent;

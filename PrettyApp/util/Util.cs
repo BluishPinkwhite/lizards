@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace PrettyApp.util;
 
@@ -93,21 +92,25 @@ public class Util
             // Calculate signed angle
             float cross = dir.X * nextDir.Y - dir.Y * nextDir.X; // 2D cross product to get the sign
             float signedAngle = angle * Math.Sign(cross);
-
-            if (Math.Abs(signedAngle) > segments[^1].AngleFreedom * PI / 180)
+            if (!float.IsNaN(cross))
             {
-                float clampedAngleRad = -Math.Sign(signedAngle) * segments[^1].AngleFreedom * PI / 180;
+                if (Math.Abs(signedAngle) > segments[^1].AngleFreedom * PI / 180)
+                {
+                    float clampedAngleRad = -Math.Sign(signedAngle) * segments[^1].AngleFreedom * PI / 180;
 
-                // Smoothly rotate dir towards the clamped direction
-                dir = new Vector2(
-                    (float)(dir.X * Math.Cos(clampedAngleRad) - dir.Y * Math.Sin(clampedAngleRad)),
-                    (float)(dir.X * Math.Sin(clampedAngleRad) + dir.Y * Math.Cos(clampedAngleRad)));
+                    // Smoothly rotate dir towards the clamped direction
+                    dir = new Vector2(
+                        (float)(dir.X * Math.Cos(clampedAngleRad) - dir.Y * Math.Sin(clampedAngleRad)),
+                        (float)(dir.X * Math.Sin(clampedAngleRad) + dir.Y * Math.Cos(clampedAngleRad)));
 
-                dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
+                    dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
+                }
+
+                segments[^1].Pos += dir * (end - segments[^1].Pos).Length();
             }
-
-            segments[^1].Pos += dir * (end - segments[^1].Pos).Length();
+            else return;
         }
+        else return;
 
 
         for (int i = segments.Length - 1; i > 0; i--)
@@ -122,6 +125,9 @@ public class Util
 
                 // Calculate signed angle
                 float cross = dir.X * nextDir.Y - dir.Y * nextDir.X; // 2D cross product to get the sign
+                if (float.IsNaN(cross))
+                    continue;
+                
                 float signedAngle = angle * Math.Sign(cross);
 
                 if (Math.Abs(signedAngle) > segments[i].AngleFreedom * PI / 180)
@@ -210,7 +216,7 @@ public class Util
                 float cross = prevDir.X * dir.Y - prevDir.Y * dir.X; // 2D cross product to get the sign
                 if (float.IsNaN(cross))
                     continue;
-                
+
                 float signedAngle = angle * Math.Sign(cross);
 
                 if (Math.Abs(signedAngle) > segments[i].AngleFreedom * PI / 180)
@@ -228,5 +234,16 @@ public class Util
 
             segments[i + 1].Pos = segments[i].Pos + dir * segments[i + 1].Length;
         }
+    }
+
+    public static Vector2 RotateVector(Vector2 vec, float angleRad)
+    {
+        double cos = Math.Cos(angleRad);
+        double sin = Math.Sin(angleRad);
+        
+        return Vector2.Normalize(
+            new Vector2(
+                (float)(vec.X * cos - vec.Y * sin),
+                (float)(vec.X * sin + vec.Y * cos)));
     }
 }
