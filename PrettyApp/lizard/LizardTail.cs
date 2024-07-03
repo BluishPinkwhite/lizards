@@ -31,7 +31,7 @@ public class LizardTail : SegmentLineEntity
         for (int i = 1; i < _segments.Length; i++)
         {
             Vector2 end = _segments[i].Pos;
-            AddRect((int)end.X, (int)end.Y, 5 - (i/2), 0x00CC00);
+            AddRect((int)end.X, (int)end.Y, 5 - (i/2), 0x00BB00);
         }
         
         // draw base square

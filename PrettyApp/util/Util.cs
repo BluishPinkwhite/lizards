@@ -30,9 +30,9 @@ public class Util
         return (int)((i1 - i2) * progress) + i1;
     }
 
-    public static void DoFABRIK(Vector2 start, Vector2 end, Vector2 moveDirection, Segment[] segments)
+    public static bool DoFABRIK(Vector2 start, Vector2 end, Vector2 moveDirection, Segment[] segments)
     {
-        // Vector2 direction = end - start;
+        Vector2 direction = end - start;
 
         // // is goal reachable?
         // if (segments.Sum(s => s.Length) < direction.Length())
@@ -58,30 +58,33 @@ public class Util
                 // if ((segments[^1].Pos - end).Length() < tolerance)
                 //     break;
 
-                DoBackwardReach(end, segments);
+                DoBackwardReach(end, segments, false);
                 DoForwardReach(start + moveDirection, segments, true);
             }
         }
+
+        return segments.Sum(s => s.Length) < direction.Length();
     }
 
-    public static void DoBackwardReaching(Vector2 end, Segment[] segments)
+    public static void DoBackwardReaching(Vector2 end, Segment[] segments, bool teleportStart)
     {
         const int maxIterations = 20; // Allow more iterations for gradual convergence
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
-            DoBackwardReach(end, segments);
+            DoBackwardReach(end, segments, teleportStart);
         }
     }
 
-    private static void DoBackwardReach(Vector2 end, Segment[] segments)
+    private static void DoBackwardReach(Vector2 end, Segment[] segments, bool teleportStart)
     {
         // Backwards solve
-        // segments[^1].Pos =
-        //     Vector2.Lerp(segments[^1].Pos, end, .5f); // Move last point slightly towards the goal
+        if(teleportStart)
+        {
+            segments[^1].Pos = end; // Move last point to the goal
+        }
 
-
-        if ((end - segments[^1].Pos).Length() > 0)
+        else if ((end - segments[^1].Pos).Length() > 0)
         {
             Vector2 dir = Vector2.Normalize(end - segments[^1].Pos);
             Vector2 nextDir = Vector2.Normalize(segments[^1].Pos - segments[^2].Pos);

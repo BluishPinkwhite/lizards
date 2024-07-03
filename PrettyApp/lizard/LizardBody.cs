@@ -30,7 +30,7 @@ public class LizardBody : SegmentLineEntity
         for (int i = 1; i < _segments.Length; i++)
         {
             Vector2 end = _segments[i].Pos;
-            AddRect((int)end.X, (int)end.Y, 5 + ((i > 2 && i < 6) ? 2 : 0), 0x00BB00);
+            AddRect((int)end.X, (int)end.Y, 5 + (i is > 2 and < 6 ? 2 : 0), 0x00BB00);
         }
 
         // draw head square
@@ -44,6 +44,12 @@ public class LizardBody : SegmentLineEntity
 
             AddLine(start, end, 0xEE2030);
         }
+
+        Vector2 bodyDir = _segments[0].Pos - _segments[1].Pos;
+        Vector2 eye = _segments[0].Pos + 5 * Vector2.Normalize(Util.RotateVector(bodyDir, Util.PI / 4));
+        AddRect((int)eye.X, (int)eye.Y, 1, 0);
+        eye = _segments[0].Pos + 5 * Vector2.Normalize(Util.RotateVector(bodyDir, -Util.PI / 4));
+        AddRect((int)eye.X, (int)eye.Y, 1, 0);
     }
 
     public override void Tick()

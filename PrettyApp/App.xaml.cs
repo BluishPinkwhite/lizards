@@ -20,7 +20,7 @@ public partial class App : Application
     {
         Dirt = 0x820000,
         Stone = 0x404040,
-        Air = 0x101010,//0x38D6D9,
+        Air = 0x38D6D9, //0x101010 // 0x38D6D9,
         Wood = 0x4D2528,
         Leaves = 0x2E662E,
         Grass = 0x03FC30
@@ -34,8 +34,11 @@ public partial class App : Application
 
         try
         {
-            LizardEntity l = new LizardEntity(
-                new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2));
+            new LizardEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2,
+                PrettyApp.MainWindow.bm.PixelHeight / 2));
+            
+            // new LizardEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2,
+            //     PrettyApp.MainWindow.bm.PixelHeight / 2));
         }
         catch (Exception e)
         {

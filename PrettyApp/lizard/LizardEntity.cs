@@ -10,7 +10,7 @@ public class LizardEntity : Entity
     private Vector2 _goal = new(100, 100); // the final destination the entity wants to reach
     private Vector2 _stepGoal = new(100, 100); // the eased-in step of the final goal
     private Vector2 _vel = new(7, 3);
-    private float speed = 2.5f;
+    private float speed = 5.0f;
 
 
     internal LizardBody Body;
@@ -20,6 +20,8 @@ public class LizardEntity : Entity
 
     public LizardEntity(Point pos) : base(pos)
     {
+        _vel = new(3 + (float)Random.Shared.NextDouble() * 5, 3 + (float)Random.Shared.NextDouble() * 5);
+
         App.Entities.Add(this);
 
         Body = new LizardBody(this);
