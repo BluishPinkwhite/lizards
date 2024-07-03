@@ -7,7 +7,7 @@ namespace PrettyApp.drawable;
 public abstract class Entity(Point pos)
 {
     protected Point Pos = pos;
-    protected List<Pixel> PixelData { get; init; } = [];
+    protected List<Pixel> PixelData { get; init; } = []; // TODO to map so the same pixel does not get drawn twice?
     protected BoundingBox Bounds, LastBounds;
 
     protected bool UpdateRequired = true;

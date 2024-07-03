@@ -10,31 +10,25 @@ public class LizardEntity : Entity
     private Vector2 _goal = new(100, 100); // the final destination the entity wants to reach
     private Vector2 _stepGoal = new(100, 100); // the eased-in step of the final goal
     private Vector2 _vel = new(14, 6);
-    private float speed = 8;
+    private float speed = 5;
     
     
-    private SegmentLineEntity Body;
+    internal LizardBody Body;
+    internal SegmentLineEntity Tail;
 
     
     public LizardEntity(Point pos) : base(pos)
     {
-        Segment[] bodySegments = new Segment[10];
-        int len = 10;
-        int angleFreedom = 5;
-        int d = 0;
-        
-        for (int i = 0; i < bodySegments.Length; i++)
-        {
-            bodySegments[i] = new Segment(new Vector2((d++) * len, 0), len, angleFreedom);
-        }
-        Body = new SegmentLineEntity(new Point(0, 0), bodySegments);
-        App.Entities.Add(Body);
+        App.Entities.Add(this);
+
+        Body = new LizardBody(this);
+        Tail = new LizardTail(this);
     }
 
 
     protected override void RedrawPixelData()
     {
-        AddRect((int)_goal.X, (int)_goal.Y, 1, 0);
+        AddRect((int)_goal.X, (int)_goal.Y, 1, 0xffffff);
         // AddRect((int)(_segments[0].Pos.X + _stepGoal.X), (int)(_segments[0].Pos.Y + _stepGoal.Y), 2, 0xff0000);
     }
 
@@ -56,8 +50,6 @@ public class LizardEntity : Entity
         
         CalculateStepGoal();
         Body.Goal = _stepGoal;
-        
-        
         
         Pos.X = (int)_goal.X;
         Pos.Y = (int)_goal.Y;
