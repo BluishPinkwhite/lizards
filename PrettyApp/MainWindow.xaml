@@ -8,7 +8,4 @@
         Title="Pretty thing" Height="720" Width="1080"
         ResizeMode="CanMinimize"
         Loaded="MainWindow_OnLoaded">
-    <Canvas Name="MainCanvas" Background="Bisque" Focusable="True">
-
-    </Canvas>
 </Window>

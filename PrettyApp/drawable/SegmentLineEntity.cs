@@ -8,10 +8,11 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
 {
     private Segment[] _segments = segments;
     private Vector2 _goal = new(100, 100); // the final destination the entity wants to reach
-    private Vector2 _stepGoal = new(100, 100); // the eased-in step of the final goal 
-    private Vector2 _vel = new(7, 3);
+    private Vector2 _stepGoal = new(100, 100); // the eased-in step of the final goal
 
-    private float speed = 4;
+    private Vector2 _vel = new(14, 6);
+
+    private float speed = 8;
 
     protected override void RedrawPixelData()
     {
@@ -28,8 +29,8 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
         }
 
         AddRect((int)_goal.X, (int)_goal.Y, 1, 0);
-        AddRect((int)_stepGoal.X, (int)_stepGoal.Y, 1, 0xff0000);
         AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 5, 0x0000BB);
+        AddRect((int)(_segments[0].Pos.X + _stepGoal.X), (int)(_segments[0].Pos.Y + _stepGoal.Y), 2, 0xff0000);
     }
 
     public override void Tick()
@@ -65,7 +66,10 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
         {
             CalculateStepGoal();
 
-            Util.DoForwardReaching(_stepGoal, _segments);
+            // Util.DoFABRIK(_segments[0].Pos, _segments[^1].Pos, _stepGoal, _segments);
+            
+            Util.DoForwardReaching(_segments[0].Pos + _stepGoal, _segments);
+            
             UpdateRequired = true;
         }
     }
@@ -79,28 +83,6 @@ public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
         Vector2 stepV = new(_segments[0].Pos.X, _segments[0].Pos.Y);
 
         Vector2 goalDir = Vector2.Normalize(_goal - stepV); // direction to goal from head
-
-        Vector2 headDir = Vector2.Normalize(_segments[1].Pos - _segments[0].Pos); // direction of head
-        float dot = Vector2.Dot(headDir, goalDir);
-        float angle = (float)Math.Acos(Math.Clamp(dot, -1f, 1f));
-
-        // Calculate signed angle
-        float cross = headDir.X * goalDir.Y - headDir.Y * goalDir.X; // 2D cross product to get the sign
-        float signedAngle = angle * Math.Sign(cross);
-
-        if (Math.Abs(signedAngle) > _segments[0].AngleFreedom * Util.PI / 180 / 10)
-        {
-            float clampedAngleRad = Math.Sign(signedAngle) * _segments[0].AngleFreedom * Util.PI / 180 / 10;
-
-            // Smoothly rotate dir towards the clamped direction
-            goalDir = Vector2.Lerp(goalDir, new Vector2(
-                (float)(goalDir.X * Math.Cos(clampedAngleRad) - goalDir.Y * Math.Sin(clampedAngleRad)),
-                (float)(goalDir.X * Math.Sin(clampedAngleRad) + goalDir.Y * Math.Cos(clampedAngleRad))
-            ), .5f);
-        }
-
-        stepV = Vector2.Lerp(stepV, stepV + Vector2.Normalize(goalDir) * speed, .75f);
-
-        _stepGoal = stepV;
+        _stepGoal = Vector2.Normalize(goalDir) * speed;
     }
 }

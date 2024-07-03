@@ -39,7 +39,7 @@ public partial class MainWindow : Window
             null);
 
         image.Source = bm;
-        image.Stretch = Stretch.None;
+        image.Stretch = Stretch.UniformToFill;
         image.HorizontalAlignment = HorizontalAlignment.Left;
         image.VerticalAlignment = VerticalAlignment.Top;
 

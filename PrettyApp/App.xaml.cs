@@ -11,7 +11,7 @@ namespace PrettyApp;
 /// </summary>
 public partial class App : Application
 {
-    public const double Zoom = 2;
+    public const double Zoom = 1.5;
     public readonly List<Entity> Entities = new();
     private List<Pixel> tiles;
 
@@ -31,17 +31,13 @@ public partial class App : Application
         // Entities.Add(line);
 
         int len = 10;
-        int angleFreedom = 20;
+        int angleFreedom = 5;
         int d = 0;
 
         SegmentLineEntity s = new SegmentLineEntity(
             new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2),
             [
-                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
-                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
-                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
-                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
-                new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
+                new Segment(new Vector2((d++) * len, 0), len, 2),
                 new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
                 new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
                 new Segment(new Vector2((d++) * len, 0), len, angleFreedom),
@@ -57,7 +53,7 @@ public partial class App : Application
 
     public void RunSimulation()
     {
-        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 30), () =>
+        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 25), () =>
         {
             try
             {
