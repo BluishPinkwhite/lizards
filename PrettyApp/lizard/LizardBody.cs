@@ -4,7 +4,9 @@ using PrettyApp.drawable;
 using PrettyApp.util;
 
 namespace PrettyApp.lizard;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 /**
  * Uses Forward IK to move towards goal. Other body parts are connected to it.
  * 

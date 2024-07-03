@@ -1,7 +1,9 @@
 ﻿using System.Drawing;
 
 namespace PrettyApp.drawable;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public class LineEntity(Point pos) : Entity(pos)
 {
     private int _lastX = 0, _lastY = 0;

@@ -16,4 +16,8 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="_exe\" />
+    </ItemGroup>
+
 </Project>

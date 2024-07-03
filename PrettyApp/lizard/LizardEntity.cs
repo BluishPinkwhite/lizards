@@ -4,7 +4,9 @@ using PrettyApp.drawable;
 using PrettyApp.util;
 
 namespace PrettyApp.lizard;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public class LizardEntity : Entity
 {
     private Vector2 _goal = new(100, 100); // the final destination the entity wants to reach

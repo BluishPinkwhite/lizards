@@ -4,7 +4,9 @@ using PrettyApp.drawable;
 using PrettyApp.util;
 
 namespace PrettyApp.lizard;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 /**
  * Attached to sides of certain middle segments of Body.
  * Uses full FABRIK - forward and backward

@@ -1,5 +1,7 @@
 ﻿namespace PrettyApp.util;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public struct BoundingBox
 {
     public int X, Y, Ex, Ey;

@@ -7,7 +7,9 @@ using PrettyApp.drawable;
 using PrettyApp.util;
 
 namespace PrettyApp;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 /// <summary>
 /// Interaction logic for MainWindow.xaml
 /// </summary>

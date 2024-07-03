@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
 
 namespace PrettyApp.util;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public struct Segment
 {
     public Vector2 Pos;

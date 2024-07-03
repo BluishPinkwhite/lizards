@@ -6,7 +6,9 @@ using PrettyApp.util;
 using Point = System.Drawing.Point;
 
 namespace PrettyApp;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>

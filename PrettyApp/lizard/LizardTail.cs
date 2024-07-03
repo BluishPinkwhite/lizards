@@ -4,7 +4,9 @@ using PrettyApp.drawable;
 using PrettyApp.util;
 
 namespace PrettyApp.lizard;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 /**
  * Connected at the end of Body. (first segment of tail follows last segment of body using Forward IK)
  * 

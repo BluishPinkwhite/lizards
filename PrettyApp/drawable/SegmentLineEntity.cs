@@ -3,7 +3,9 @@ using System.Numerics;
 using PrettyApp.util;
 
 namespace PrettyApp.drawable;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public class SegmentLineEntity(Point pos, Segment[] segments) : Entity(pos)
 {
     protected internal Segment[] _segments = segments;

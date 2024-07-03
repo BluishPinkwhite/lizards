@@ -3,6 +3,9 @@ using PrettyApp.util;
 
 namespace PrettyApp.drawable;
 
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public class EmptyEntity : Entity
 {
     public EmptyEntity(Point pos, List<Pixel> pixelData) : base(pos)

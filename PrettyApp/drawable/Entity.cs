@@ -3,7 +3,9 @@ using System.Numerics;
 using PrettyApp.util;
 
 namespace PrettyApp.drawable;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public abstract class Entity(Point pos)
 {
     protected Point Pos = pos;

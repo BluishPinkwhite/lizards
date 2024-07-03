@@ -1,7 +1,9 @@
 ﻿using System.Numerics;
 
 namespace PrettyApp.util;
-
+/*
+ * @author Tammie Hladilů, @BluishPinkwhite on GitHub
+ */
 public class Util
 {
     public static readonly float PI = (float)Math.PI;
