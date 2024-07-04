@@ -3,6 +3,7 @@ using System.Numerics;
 using PrettyApp.util;
 
 namespace PrettyApp.drawable;
+
 /*
  * @author Tammie Hladilů, @BluishPinkwhite on GitHub
  */
@@ -40,27 +41,26 @@ public abstract class Entity(Point pos)
 
     public abstract void Tick();
     public abstract void TickSecond();
-    
 
-    
+
     protected void AddPixel(int x, int y, int color)
     {
         if (x < 0 || y < 0 || x >= MainWindow.bm.PixelWidth || y >= MainWindow.bm.PixelHeight)
             return;
-        
+
         PixelData.Add(new Pixel(x, y, color));
 
         if (x < Bounds.X)
             Bounds.X = x;
         else if (x > Bounds.Ex)
             Bounds.Ex = x;
-        
+
         if (y < Bounds.Y)
             Bounds.Y = y;
         else if (y > Bounds.Ey)
             Bounds.Ey = y;
     }
-    
+
     protected void AddPixel(Vector2 p, int color)
     {
         AddPixel((int)p.X, (int)p.Y, color);
@@ -126,7 +126,7 @@ public abstract class Entity(Point pos)
     {
         return Bounds;
     }
-    
+
     public BoundingBox GetLastBoundingBox()
     {
         return LastBounds;

@@ -55,8 +55,6 @@ public class LizardTail : SegmentLineEntity
         
         if ((new Vector2(Goal.X, Goal.Y) - _segments[0].Pos).Length() > 0.01f)
         {
-            // Util.DoFABRIK(_segments[0].Pos, _segments[^1].Pos, _stepGoal, _segments);
-
             Util.DoForwardReaching(Goal, _segments, false);
             
             Pos.X = (int)_segments[0].Pos.X;

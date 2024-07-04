@@ -56,14 +56,14 @@ public class LizardLeg : SegmentLineEntity
     protected override void RedrawPixelData()
     {
         // draw leg squares
-        for (int i = 1; i < _segments.Length; i++)
+        for (int i = 0; i < _segments.Length; i++)
         {
             Vector2 end = _segments[i].Pos;
             AddRect((int)end.X, (int)end.Y, 3, 0x00DD40);
         }
 
         // draw base square
-        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 2, 0x0022DD);
+        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 2, 0x00BB00);
 
         // draw connecting lines
         for (int i = 0; i < _segments.Length - 1; i++)

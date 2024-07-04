@@ -16,7 +16,7 @@ public class LizardBody : SegmentLineEntity
 {
     protected LizardEntity Parent;
 
-    public LizardBody(LizardEntity parent) : base(new Point(0, 0), GenerateSegments(8, 5, 10))
+    public LizardBody(LizardEntity parent) : base(new Point(0, 0), GenerateSegments(7, 5, 10))
     {
         Parent = parent;
 

@@ -1,12 +1,14 @@
 ﻿using System.Numerics;
 
 namespace PrettyApp.util;
+
 /*
  * @author Tammie Hladilů, @BluishPinkwhite on GitHub
  */
 public class Util
 {
     public static readonly float PI = (float)Math.PI;
+    private static readonly float LERP_AMOUNT = 0.5f;
 
 
     public static int LerpColor(int color1, int color2, float progress)
@@ -36,29 +38,29 @@ public class Util
     {
         Vector2 direction = end - start;
 
-        // // is goal reachable?
-        // if (segments.Sum(s => s.Length) < direction.Length())
-        // {
-        //     // unreachable -> straight line towards goal
-        //     direction = Vector2.Normalize(direction);
-        //     segments[0].Pos = start + direction * segments[0].Length;
-        //
-        //     for (int i = 1; i < segments.Length; i++)
-        //     {
-        //         segments[i].Pos = segments[i - 1].Pos + direction * segments[i].Length;
-        //     }
-        // }
-        // // reachable - do FABRIK
-        // else
+        // is goal reachable?
+        if (segments.Sum(s => s.Length) < direction.Length())
         {
-            const float tolerance = 0.8f; // Tolerance for endpoint fitting
+            // unreachable -> straight line towards goal
+            direction = Vector2.Normalize(direction);
+            segments[0].Pos = start + direction * segments[0].Length;
+
+            for (int i = 1; i < segments.Length; i++)
+            {
+                segments[i].Pos = segments[i - 1].Pos + direction * segments[i].Length;
+            }
+        }
+        // reachable - do FABRIK
+        else
+        {
+            const float tolerance = 0.4f; // Tolerance for endpoint fitting
             const int maxIterations = 20; // Allow more iterations for gradual convergence
 
             for (int iteration = 0; iteration < maxIterations; iteration++)
             {
                 // Check if the end is close enough to the goal
-                // if ((segments[^1].Pos - end).Length() < tolerance)
-                //     break;
+                if ((segments[^1].Pos - end).Length() < tolerance)
+                    break;
 
                 DoBackwardReach(end, segments, false);
                 DoForwardReach(start + moveDirection, segments, true);
@@ -81,7 +83,7 @@ public class Util
     private static void DoBackwardReach(Vector2 end, Segment[] segments, bool teleportStart)
     {
         // Backwards solve
-        if(teleportStart)
+        if (teleportStart)
         {
             segments[^1].Pos = end; // Move last point to the goal
         }
@@ -111,7 +113,9 @@ public class Util
                     dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
                 }
 
-                segments[^1].Pos += dir * (end - segments[^1].Pos).Length();
+                segments[^1].Pos = Vector2.Lerp(segments[^1].Pos,
+                    segments[^1].Pos + dir * (end - segments[^1].Pos).Length(),
+                    LERP_AMOUNT);
             }
             else return;
         }
@@ -132,7 +136,7 @@ public class Util
                 float cross = dir.X * nextDir.Y - dir.Y * nextDir.X; // 2D cross product to get the sign
                 if (float.IsNaN(cross))
                     continue;
-                
+
                 float signedAngle = angle * Math.Sign(cross);
 
                 if (Math.Abs(signedAngle) > segments[i].AngleFreedom * PI / 180)
@@ -148,7 +152,9 @@ public class Util
                 }
             }
 
-            segments[i - 1].Pos = segments[i].Pos - dir * segments[i - 1].Length;
+            segments[i - 1].Pos = Vector2.Lerp(segments[i - 1].Pos,
+                segments[i].Pos - dir * segments[i - 1].Length,
+                LERP_AMOUNT);
         }
     }
 
@@ -172,7 +178,7 @@ public class Util
         // Move first point slightly towards the start
         if (teleportStart)
         {
-            segments[0].Pos = Vector2.Lerp(segments[0].Pos, start, .5f);
+            segments[0].Pos = Vector2.Lerp(segments[0].Pos, start, LERP_AMOUNT);
         }
 
         else if ((start - segments[0].Pos).Length() > 0.01f)
@@ -200,13 +206,26 @@ public class Util
                     dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
                 }
 
-                segments[0].Pos += dir * (segments[0].Pos - start).Length();
+                Vector2 temp = new Vector2(segments[0].Pos.X, segments[0].Pos.Y);
+                float dist = (segments[0].Pos - start).Length();
+
+                segments[0].Pos = Vector2.Lerp(segments[0].Pos,
+                    segments[0].Pos + dir * (segments[0].Pos - start).Length(),
+                    LERP_AMOUNT);
+
+                // fix for wrong dir (segments flying off to infinity): flip dir when segment got farther by step
+                if ((segments[0].Pos - start).Length() > dist)
+                {
+                    segments[0].Pos = Vector2.Lerp(temp,
+                        temp - dir * (temp - start).Length(),
+                        LERP_AMOUNT);
+                }
             }
             else return;
         }
         else return;
 
-
+        // Iterate through each segment to adjust positions
         for (int i = 0; i < segments.Length - 1; i++)
         {
             Vector2 dir = Vector2.Normalize(segments[i + 1].Pos - segments[i].Pos);
@@ -233,22 +252,24 @@ public class Util
                         (float)(dir.X * Math.Cos(clampedAngleRad) - dir.Y * Math.Sin(clampedAngleRad)),
                         (float)(dir.X * Math.Sin(clampedAngleRad) + dir.Y * Math.Cos(clampedAngleRad)));
 
-                    dir = Vector2.Normalize(dir); // Ensure dir is normalized after lerping
+                    dir = Vector2.Normalize(dir); // Ensure dir is normalized after rotation
                 }
             }
 
-            segments[i + 1].Pos = segments[i].Pos + dir * segments[i + 1].Length;
+            segments[i + 1].Pos = Vector2.Lerp(segments[i + 1].Pos,
+                segments[i].Pos + dir * segments[i + 1].Length,
+                LERP_AMOUNT);
         }
     }
 
     public static Vector2 RotateVector(Vector2 vec, float angleRad)
     {
-        double cos = Math.Cos(angleRad);
-        double sin = Math.Sin(angleRad);
-        
+        float cos = (float)Math.Cos(angleRad);
+        float sin = (float)Math.Sin(angleRad);
+
         return Vector2.Normalize(
             new Vector2(
-                (float)(vec.X * cos - vec.Y * sin),
-                (float)(vec.X * sin + vec.Y * cos)));
+                vec.X * cos - vec.Y * sin,
+                vec.X * sin + vec.Y * cos));
     }
 }
