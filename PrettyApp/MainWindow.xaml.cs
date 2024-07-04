@@ -19,10 +19,15 @@ public partial class MainWindow : Window
     public static WriteableBitmap bm { get; private set; }
     public static int MouseX { get; private set; }
     public static int MouseY { get; private set; }
+    internal static bool WindowSizeChanged = true;
+
+    internal static MainWindow instance;
 
 
     public MainWindow()
     {
+        instance = this;
+        
         InitializeComponent();
 
         image = new Image();
@@ -280,5 +285,26 @@ public partial class MainWindow : Window
 
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
+    }
+
+    private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        WindowSizeChanged = true;
+    }
+
+    internal static void ResizeWindow()
+    {
+        WindowSizeChanged = false;
+        
+        bm = new WriteableBitmap(
+            (int)(instance.ActualWidth / App.Zoom),
+            (int)(instance.ActualHeight / App.Zoom),
+            48, 48,
+            PixelFormats.Bgr32,
+            null);
+        
+        ClearRenderedScene();
+
+        image.Source = bm;
     }
 }

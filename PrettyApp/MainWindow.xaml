@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:PrettyApp"
         mc:Ignorable="d"
         Title="Pretty thing" Height="720" Width="1080"
-        ResizeMode="CanMinimize"
-        Loaded="MainWindow_OnLoaded">
+        ResizeMode="CanResize"
+        Loaded="MainWindow_OnLoaded"
+        SizeChanged="MainWindow_OnSizeChanged">
 </Window>

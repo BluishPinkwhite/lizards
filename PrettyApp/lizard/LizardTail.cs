@@ -22,7 +22,7 @@ public class LizardTail : SegmentLineEntity
         Pos.X = (int)_segments[0].Pos.X;
         Pos.Y = (int)_segments[0].Pos.Y;
 
-        _segments[0].AngleFreedom = 180;
+        _segments[0].AngleFreedom = 120;
         
         App.Entities.Add(this);
     }

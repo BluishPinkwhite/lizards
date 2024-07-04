@@ -72,6 +72,11 @@ public partial class App : Application
         {
             try
             {
+                if (PrettyApp.MainWindow.WindowSizeChanged)
+                {
+                    PrettyApp.MainWindow.ResizeWindow();
+                }
+                
                 foreach (Entity entity in Entities)
                 {
                     entity.TickSecond();
