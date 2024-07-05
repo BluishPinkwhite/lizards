@@ -11,13 +11,13 @@ namespace PrettyApp.drawable;
 public abstract class Entity(Point pos)
 {
     protected Point Pos = pos;
-    protected List<Pixel> PixelData { get; init; } = []; // TODO to map so the same pixel does not get drawn twice?
+    private Dictionary<int, int> PixelData { get; } = new(PixelDataComparer.PixelComparer);
     protected BoundingBox Bounds, LastBounds;
 
     protected bool UpdateRequired = true;
     public bool HasJustUpdated = false;
 
-    public List<Pixel> GetPixelData()
+    public Dictionary<int, int> GetPixelData()
     {
         return PixelData;
     }
@@ -49,8 +49,9 @@ public abstract class Entity(Point pos)
         if (x < 0 || y < 0 || x >= MainWindow.bm.PixelWidth || y >= MainWindow.bm.PixelHeight)
             return;
 
-        PixelData.Add(new Pixel(x, y, color));
+        PixelData[(y << 16) + x] = color;
 
+        
         if (x < Bounds.X)
             Bounds.X = x;
         else if (x > Bounds.Ex)

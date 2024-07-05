@@ -115,22 +115,26 @@ public static class DrawManager
                 for (int i = entities.Count - 1; i >= 0; i--)
                 {
                     Entity entity = entities[i];
-                    List<Pixel> list = entity.GetPixelData();
+                    Dictionary<int, int> data = entity.GetPixelData();
 
-                    foreach (Pixel p in list)
+                    foreach (KeyValuePair<int,int> pixel in data)
                     {
-                        if (p.X < 0 || p.Y < 0 || p.X >= MainWindow.bm.PixelWidth || p.Y >= MainWindow.bm.PixelHeight)
+                        int x = pixel.Key & 0x0000FFFF;
+                        int y = pixel.Key >> 16;
+                        int color = pixel.Value;
+                        
+                        if (x < 0 || y < 0 || x >= MainWindow.bm.PixelWidth || y >= MainWindow.bm.PixelHeight)
                         {
-                            Console.Out.WriteLine($"Pixel outside image: ({p.X},{p.Y}), {p.Color:X}, skipping...");
+                            Console.Out.WriteLine($"Pixel outside image: ({x},{y}), {color:X}, skipping...");
                             continue;
                         }
 
                         IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 
-                        pBackBuffer += p.Y * MainWindow.bm.BackBufferStride;
-                        pBackBuffer += p.X * 4;
+                        pBackBuffer += y * MainWindow.bm.BackBufferStride;
+                        pBackBuffer += x * 4;
 
-                        *((int*)pBackBuffer) = p.Color;
+                        *((int*)pBackBuffer) = color;
                     }
                 }
             }
