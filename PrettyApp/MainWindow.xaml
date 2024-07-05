@@ -5,8 +5,15 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:PrettyApp"
         mc:Ignorable="d"
-        Title="Pretty thing" Height="720" Width="1080"
+        Title="Pretty thing"
         ResizeMode="CanResize"
         Loaded="MainWindow_OnLoaded"
-        SizeChanged="MainWindow_OnSizeChanged">
+        SizeChanged="MainWindow_OnSizeChanged"
+        WindowStartupLocation="CenterScreen"
+        Width="auto"
+        Height="auto"
+        MinHeight="360"
+        MinWidth="540"
+        WindowState="Maximized"
+        WindowStyle="None">
 </Window>

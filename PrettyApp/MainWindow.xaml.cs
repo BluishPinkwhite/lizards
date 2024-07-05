@@ -53,6 +53,8 @@ public partial class MainWindow : Window
         image.MouseLeftButtonDown += i_MouseLeft;
         image.MouseRightButtonDown += i_MouseRight;
 
+        KeyDown += i_KeyDown;
+
         this.MouseWheel += w_OnMouseWheel;
 
         MouseX = bm.PixelWidth / 2;
@@ -68,6 +70,25 @@ public partial class MainWindow : Window
         catch (Exception e)
         {
             Console.Error.WriteLine(e.ToString());
+        }
+    }
+
+    private void i_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.F)
+        {
+            if (WindowStyle == WindowStyle.None)
+            {
+                // set windowed
+                WindowStyle = WindowStyle.SingleBorderWindow;
+                WindowState = WindowState.Normal;
+            }
+            else
+            {
+                // set fullscreen
+                WindowStyle = WindowStyle.None;
+                WindowState = WindowState.Maximized;
+            }
         }
     }
 

@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
+        <Authors>Tammie Hladilů (@BluishPinkwhite)</Authors>
     </PropertyGroup>
 
 <!--    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">-->
@@ -18,6 +19,10 @@
 
     <ItemGroup>
       <Folder Include="_exe\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="System.Reactive.Windows.Forms" Version="6.0.1" />
     </ItemGroup>
 
 </Project>
