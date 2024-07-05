@@ -5,6 +5,7 @@ using PrettyApp.util;
 using PrettyApp.window;
 
 namespace PrettyApp.lizard;
+
 /*
  * @author Tammie Hladilů, @BluishPinkwhite on GitHub
  */
@@ -56,32 +57,54 @@ public class LizardLeg : SegmentLineEntity
 
     protected override void RedrawPixelData()
     {
-        // draw leg squares
-        for (int i = 0; i < _segments.Length; i++)
+        Vector2 lastLeft, lastRight;
+        // -1st segment data
         {
-            Vector2 end = _segments[i].Pos;
-            AddRect((int)end.X, (int)end.Y, 3, 0x00DD40);
+            Vector2 segmentDir = _segments[0].Pos - Parent.Body._segments[_attachSegment].Pos;
+            Vector2 rotatedDir = Vector2.Normalize(Util.RotateVector(segmentDir, Util.PI / 2f));
+            float len = _segments[0].Length * 0.35f;
+
+            // prepare -1st segment data
+            lastLeft = Parent.Body._segments[_attachSegment].Pos + rotatedDir * -len;
+            lastRight = Parent.Body._segments[_attachSegment].Pos + rotatedDir * len;
+        }
+
+        // draw leg parts
+        for (int i = _segments.Length - 2; i >= 0; i--)
+        {
+            Vector2 segmentDir = _segments[i].Pos - _segments[i + 1].Pos;
+            Vector2 rotatedDir = Vector2.Normalize(Util.RotateVector(segmentDir, Util.PI / 2f));
+            float len = _segments[i].Length * 0.35f;
+
+            Vector2 left = _segments[i].Pos + rotatedDir * -len;
+            Vector2 right = _segments[i].Pos + rotatedDir * len;
+
+            FillArea(left, right, lastRight, lastLeft, 0x00DD40);
+
+            lastLeft = left;
+            lastRight = right;
         }
 
         // draw base square
-        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 2, 0x00BB00);
+        AddRect((int)_segments[0].Pos.X, (int)_segments[0].Pos.Y, 1, 0x00BB00);
+
 
         // draw connecting lines
-        for (int i = 0; i < _segments.Length - 1; i++)
-        {
-            Vector2 start = _segments[i].Pos;
-            Vector2 end = _segments[i + 1].Pos;
-
-            // AddLine(start, end, 0xFFFF00);
-        }
+        // for (int i = 0; i < _segments.Length - 1; i++)
+        // {
+        //     Vector2 start = _segments[i].Pos;
+        //     Vector2 end = _segments[i + 1].Pos;
+        //
+        //     AddLine(start, end, 0xFFFF00);
+        // }
 
 
         // desired foot location
-        Vector2 bodyDir = Vector2.Normalize(Parent.Body._segments[_attachSegment].Pos -
-                                            Parent.Body._segments[_attachSegment - 1].Pos);
-        Vector2 leg = Util.RotateVector(bodyDir, _rotationAngle);
-        leg = Vector2.Reflect(leg, bodyDir);
-        leg = Parent.Body._segments[_attachSegment].Pos + leg * _lengthSum * _footStretch;
+        // Vector2 bodyDir = Vector2.Normalize(Parent.Body._segments[_attachSegment].Pos -
+        //                                     Parent.Body._segments[_attachSegment - 1].Pos);
+        // Vector2 leg = Util.RotateVector(bodyDir, _rotationAngle);
+        // leg = Vector2.Reflect(leg, bodyDir);
+        // leg = Parent.Body._segments[_attachSegment].Pos + leg * _lengthSum * _footStretch;
         // AddRect((int)leg.X, (int)leg.Y, 1, 0x00FFFF);
 
 

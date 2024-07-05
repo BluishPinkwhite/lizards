@@ -272,4 +272,28 @@ public class Util
                 vec.X * cos - vec.Y * sin,
                 vec.X * sin + vec.Y * cos));
     }
+
+    public static int Min(float i, float j, float k, float l)
+    {
+        float min = i;
+        if (j < min)
+            min = j;
+        if (k < min)
+            min = k;
+        if (l < min)
+            min = l;
+        return (int)Math.Floor(min);
+    }
+    
+    public static int Max(float i, float j, float k, float l)
+    {
+        float max = i;
+        if (j > max)
+            max = j;
+        if (k > max)
+            max = k;
+        if (l > max)
+            max = l;
+        return (int)Math.Ceiling(max);
+    }
 }

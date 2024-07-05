@@ -13,7 +13,6 @@ public partial class App : Application
 {
     public const double Zoom = 2.5;
     public static readonly List<Entity> Entities = new();
-    private List<Pixel> tiles;
 
     public enum Tiles
     {

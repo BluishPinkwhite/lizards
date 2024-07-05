@@ -70,7 +70,8 @@ public static class DrawManager
                 // merge all overlapping intervals in rows
                 foreach (KeyValuePair<int,List<Interval>> keyValuePair in rowsBoundingBoxes)
                 {
-                    List<Interval> rowIntervals = keyValuePair.Value.OrderBy(interval => interval.Start).ToList();
+                    List<Interval> rowIntervals = keyValuePair.Value;
+                    rowIntervals.Sort((interval, interval1) => interval.Start - interval1.Start);
 
                     int index = 0; // output array index
                     for (int i = 1; i < rowIntervals.Count; i++)

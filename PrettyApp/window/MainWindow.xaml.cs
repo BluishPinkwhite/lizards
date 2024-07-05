@@ -23,18 +23,19 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         instance = this;
-        
+
         InitializeComponent();
 
         image = new Image();
         RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
-        RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
+        RenderOptions.SetEdgeMode(image, EdgeMode.Unspecified);
+        RenderOptions.SetCachingHint(image, CachingHint.Cache);
 
         Content = image;
         Show();
-        
+
         ResizeWindow();
-        
+
         image.Stretch = Stretch.UniformToFill;
         image.HorizontalAlignment = HorizontalAlignment.Left;
         image.VerticalAlignment = VerticalAlignment.Top;
@@ -101,8 +102,6 @@ public partial class MainWindow : Window
     }
 
 
-    
-
     private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
     {
     }
@@ -115,14 +114,14 @@ public partial class MainWindow : Window
     internal static void ResizeWindow()
     {
         WindowSizeChanged = false;
-        
+
         bm = new WriteableBitmap(
             (int)(instance.ActualWidth / App.Zoom),
             (int)(instance.ActualHeight / App.Zoom),
             48, 48,
             PixelFormats.Bgr32,
             null);
-        
+
         DrawManager.ClearRenderedScene();
 
         image.Source = bm;
