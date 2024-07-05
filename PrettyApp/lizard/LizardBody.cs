@@ -48,19 +48,21 @@ public class LizardBody : SegmentLineEntity
             AddLine(start, end, 0xEE2030);
         }
 
+        // draw eyes
         Vector2 bodyDir = _segments[0].Pos - _segments[1].Pos;
         Vector2 eye = _segments[0].Pos + 5 * Vector2.Normalize(Util.RotateVector(bodyDir, Util.PI / 4));
         AddRect((int)eye.X, (int)eye.Y, 1, 0);
         eye = _segments[0].Pos + 5 * Vector2.Normalize(Util.RotateVector(bodyDir, -Util.PI / 4));
         AddRect((int)eye.X, (int)eye.Y, 1, 0);
+        
+        // draw connecting line to tail
+        AddLine(_segments[^1].Pos, Parent.Tail._segments[0].Pos, 0xEE2030);
     }
 
     public override void Tick()
     {
         if ((new Vector2(Goal.X, Goal.Y) - _segments[0].Pos).Length() > 0.01f)
         {
-            // Util.DoFABRIK(_segments[0].Pos, _segments[^1].Pos, _stepGoal, _segments);
-
             Util.DoForwardReaching(Goal, _segments, false);
 
             Pos.X = (int)_segments[0].Pos.X;

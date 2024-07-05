@@ -70,27 +70,30 @@ public static class DrawManager
                 // merge all overlapping intervals in rows
                 foreach (KeyValuePair<int,List<Interval>> keyValuePair in rowsBoundingBoxes)
                 {
-                    List<Interval> rowIntervals = keyValuePair.Value;
-                    Interval[] intervals = rowIntervals.OrderBy(interval => interval.Start).ToArray();
+                    List<Interval> rowIntervals = keyValuePair.Value.OrderBy(interval => interval.Start).ToList();
 
                     int index = 0; // output array index
-                    for (int i = 1; i < intervals.Length; i++)
+                    for (int i = 1; i < rowIntervals.Count; i++)
                     {
-                        if (intervals[index].End >= intervals[i].Start) 
+                        Interval interval = rowIntervals[index];
+                        Interval intervalNext = rowIntervals[i];
+                        
+                        if (interval.End >= intervalNext.Start) 
                         {
                             // merge intervals
-                            intervals[index].End = Math.Max(intervals[index].End, intervals[i].End);
+                            interval.End = Math.Max(interval.End, intervalNext.End);
+                            rowIntervals[index] = interval;
                         }
                         else
                         {
                             // move to next for merging into it
                             index++;
-                            intervals[index] = intervals[i];
+                            rowIntervals[index] = intervalNext;
                         }
                     }
 
                     // result is [0..index-1]
-                    rowsBoundingBoxes[keyValuePair.Key] = new List<Interval>(intervals.Take(index + 1));
+                    rowsBoundingBoxes[keyValuePair.Key] = rowIntervals.Take(index + 1).ToList();
                 }
 
 
@@ -116,19 +119,16 @@ public static class DrawManager
 
                     foreach (Pixel p in list)
                     {
-                        int X = p.X;
-                        int Y = p.Y;
-
-                        if (X < 0 || Y < 0 || X >= MainWindow.bm.PixelWidth || Y >= MainWindow.bm.PixelHeight)
+                        if (p.X < 0 || p.Y < 0 || p.X >= MainWindow.bm.PixelWidth || p.Y >= MainWindow.bm.PixelHeight)
                         {
-                            Console.Out.WriteLine($"Pixel outside image: ({X},{Y}), {p.Color:X}, skipping...");
+                            Console.Out.WriteLine($"Pixel outside image: ({p.X},{p.Y}), {p.Color:X}, skipping...");
                             continue;
                         }
 
                         IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 
-                        pBackBuffer += Y * MainWindow.bm.BackBufferStride;
-                        pBackBuffer += X * 4;
+                        pBackBuffer += p.Y * MainWindow.bm.BackBufferStride;
+                        pBackBuffer += p.X * 4;
 
                         *((int*)pBackBuffer) = p.Color;
                     }
@@ -142,7 +142,9 @@ public static class DrawManager
     }
 
     
-    // CALL ONLY WHEN WritableBitmap IS LOCKED
+    /** 
+     * CALL ONLY WHEN WritableBitmap IS LOCKED
+     */
     private static void ResetBackground(BoundingBox bounds)
     {
         unsafe
@@ -165,7 +167,9 @@ public static class DrawManager
     }
     
     
-    // CALL ONLY WHEN WritableBitmap IS LOCKED
+    /**
+     * CALL ONLY WHEN WritableBitmap IS LOCKED
+     */
     private static void ResetRow(int row, Interval columnInterval)
     {
         unsafe

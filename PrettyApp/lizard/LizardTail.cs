@@ -48,6 +48,9 @@ public class LizardTail : SegmentLineEntity
 
             AddLine(start, end, 0xEE2030);
         }
+        
+        // draw connecting line to body
+        AddLine(_segments[0].Pos, Parent.Body._segments[^1].Pos, 0xEE2030);
     }
 
     public override void Tick()
