@@ -1,133 +1,29 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using PrettyApp.drawable;
 using PrettyApp.util;
 
-namespace PrettyApp;
-/*
- * @author Tammie Hladilů, @BluishPinkwhite on GitHub
- */
-/// <summary>
-/// Interaction logic for MainWindow.xaml
-/// </summary>
-public partial class MainWindow : Window
+namespace PrettyApp.window;
+
+public static class DrawManager
 {
-    private static Image image;
-    public static WriteableBitmap bm { get; private set; }
-    public static int MouseX { get; private set; }
-    public static int MouseY { get; private set; }
-    internal static bool WindowSizeChanged = true;
-
-    internal static MainWindow instance;
-
-
-    public MainWindow()
-    {
-        instance = this;
-        
-        InitializeComponent();
-
-        image = new Image();
-        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
-        RenderOptions.SetEdgeMode(image, EdgeMode.Aliased);
-
-        Content = image;
-        Show();
-
-        bm = new WriteableBitmap(
-            (int)(ActualWidth / App.Zoom),
-            (int)(ActualHeight / App.Zoom),
-            48, 48,
-            PixelFormats.Bgr32,
-            null);
-
-        image.Source = bm;
-        image.Stretch = Stretch.UniformToFill;
-        image.HorizontalAlignment = HorizontalAlignment.Left;
-        image.VerticalAlignment = VerticalAlignment.Top;
-
-        image.MouseMove += i_MouseMove;
-        image.MouseLeftButtonDown += i_MouseLeft;
-        image.MouseRightButtonDown += i_MouseRight;
-
-        KeyDown += i_KeyDown;
-
-        this.MouseWheel += w_OnMouseWheel;
-
-        MouseX = bm.PixelWidth / 2;
-        MouseY = bm.PixelHeight / 2;
-
-        App app = (App)Application.Current;
-        try
-        {
-            app.PrepareSimulation();
-            ClearRenderedScene();
-            app.RunSimulation();
-        }
-        catch (Exception e)
-        {
-            Console.Error.WriteLine(e.ToString());
-        }
-    }
-
-    private void i_KeyDown(object sender, KeyEventArgs e)
-    {
-        if (e.Key == Key.F)
-        {
-            if (WindowStyle == WindowStyle.None)
-            {
-                // set windowed
-                WindowStyle = WindowStyle.SingleBorderWindow;
-                WindowState = WindowState.Normal;
-            }
-            else
-            {
-                // set fullscreen
-                WindowStyle = WindowStyle.None;
-                WindowState = WindowState.Maximized;
-            }
-        }
-    }
-
-    private void w_OnMouseWheel(object sender, MouseWheelEventArgs e)
-    {
-    }
-
-    private void i_MouseRight(object sender, MouseButtonEventArgs e)
-    {
-    }
-
-    private void i_MouseLeft(object sender, MouseButtonEventArgs e)
-    {
-    }
-
-    private void i_MouseMove(object sender, MouseEventArgs e)
-    {
-        MouseX = (int)Math.Ceiling(e.GetPosition(image).X / App.Zoom);
-        MouseY = (int)Math.Ceiling(e.GetPosition(image).Y / App.Zoom);
-    }
-
-
-    private static void DrawSinglePixel(MouseEventArgs e)
+    internal static void DrawSinglePixel(MouseEventArgs e)
     {
         byte[] color = [0, 200, 50];
         Int32Rect rect = new Int32Rect(
-            (int)Math.Ceiling(e.GetPosition(image).X / App.Zoom),
-            (int)Math.Ceiling(e.GetPosition(image).Y / App.Zoom),
+            (int)Math.Ceiling(e.GetPosition(MainWindow.image).X / App.Zoom),
+            (int)Math.Ceiling(e.GetPosition(MainWindow.image).Y / App.Zoom),
             1, 1);
 
-        bm.WritePixels(rect, color, 4, 0);
+        MainWindow.bm.WritePixels(rect, color, 4, 0);
     }
 
 
-    public static void DrawPixels(List<Entity> entities)
+    internal static void DrawPixels(List<Entity> entities)
     {
         try
         {
-            bm.Lock();
+            MainWindow.bm.Lock();
 
             unsafe
             {
@@ -140,8 +36,8 @@ public partial class MainWindow : Window
                 foreach (Entity entity in entities)
                 {
                     BoundingBox bounds = entity.GetBoundingBox();
-                    bounds.ClampToScreen(bm.PixelWidth - 1, bm.PixelHeight - 1);
-                    bm.AddDirtyRect(new Int32Rect(bounds.X, bounds.Y, bounds.Width() + 1, bounds.Height() + 1));
+                    bounds.ClampToScreen(MainWindow.bm.PixelWidth - 1, MainWindow.bm.PixelHeight - 1);
+                    MainWindow.bm.AddDirtyRect(new Int32Rect(bounds.X, bounds.Y, bounds.Width() + 1, bounds.Height() + 1));
 
                     for (int row = bounds.Y; row <= bounds.Ey; row++)
                     {
@@ -157,8 +53,8 @@ public partial class MainWindow : Window
                     {
                         entity.HasJustUpdated = false;
                         BoundingBox lastBounds = entity.GetLastBoundingBox();
-                        lastBounds.ClampToScreen(bm.PixelWidth - 1, bm.PixelHeight - 1);
-                        bm.AddDirtyRect(new Int32Rect(lastBounds.X, lastBounds.Y, lastBounds.Width() + 1,
+                        lastBounds.ClampToScreen(MainWindow.bm.PixelWidth - 1, MainWindow.bm.PixelHeight - 1);
+                        MainWindow.bm.AddDirtyRect(new Int32Rect(lastBounds.X, lastBounds.Y, lastBounds.Width() + 1,
                             lastBounds.Height() + 1));
                         
                         for (int row = lastBounds.Y; row <= lastBounds.Ey; row++)
@@ -223,15 +119,15 @@ public partial class MainWindow : Window
                         int X = p.X;
                         int Y = p.Y;
 
-                        if (X < 0 || Y < 0 || X >= bm.PixelWidth || Y >= bm.PixelHeight)
+                        if (X < 0 || Y < 0 || X >= MainWindow.bm.PixelWidth || Y >= MainWindow.bm.PixelHeight)
                         {
                             Console.Out.WriteLine($"Pixel outside image: ({X},{Y}), {p.Color:X}, skipping...");
                             continue;
                         }
 
-                        IntPtr pBackBuffer = bm.BackBuffer;
+                        IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 
-                        pBackBuffer += Y * bm.BackBufferStride;
+                        pBackBuffer += Y * MainWindow.bm.BackBufferStride;
                         pBackBuffer += X * 4;
 
                         *((int*)pBackBuffer) = p.Color;
@@ -241,7 +137,7 @@ public partial class MainWindow : Window
         }
         finally
         {
-            bm.Unlock();
+            MainWindow.bm.Unlock();
         }
     }
 
@@ -257,9 +153,9 @@ public partial class MainWindow : Window
             {
                 for (int x = bounds.X; x <= bounds.Ex; x++)
                 {
-                    IntPtr pBackBuffer = bm.BackBuffer;
+                    IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 
-                    pBackBuffer += y * bm.BackBufferStride;
+                    pBackBuffer += y * MainWindow.bm.BackBufferStride;
                     pBackBuffer += x * 4;
 
                     *((int*)pBackBuffer) = (int)App.Tiles.Air;
@@ -278,9 +174,9 @@ public partial class MainWindow : Window
 
             for (int x = columnInterval.Start; x <= columnInterval.End; x++)
             {
-                IntPtr pBackBuffer = bm.BackBuffer;
+                IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 
-                pBackBuffer += row * bm.BackBufferStride;
+                pBackBuffer += row * MainWindow.bm.BackBufferStride;
                 pBackBuffer += x * 4;
 
                 *((int*)pBackBuffer) = (int)App.Tiles.Air;
@@ -288,44 +184,19 @@ public partial class MainWindow : Window
         }
     }
 
-    private static void ClearRenderedScene()
+    internal static void ClearRenderedScene()
     {
         try
         {
-            bm.Lock();
+            MainWindow.bm.Lock();
 
-            ResetBackground(new BoundingBox(0, 0, bm.PixelWidth - 1, bm.PixelHeight - 1));
+            ResetBackground(new BoundingBox(0, 0, MainWindow.bm.PixelWidth - 1, MainWindow.bm.PixelHeight - 1));
 
-            bm.AddDirtyRect(new Int32Rect(0, 0, bm.PixelWidth, bm.PixelHeight));
+            MainWindow.bm.AddDirtyRect(new Int32Rect(0, 0, MainWindow.bm.PixelWidth, MainWindow.bm.PixelHeight));
         }
         finally
         {
-            bm.Unlock();
+            MainWindow.bm.Unlock();
         }
-    }
-
-    private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
-    {
-    }
-
-    private void MainWindow_OnSizeChanged(object sender, SizeChangedEventArgs e)
-    {
-        WindowSizeChanged = true;
-    }
-
-    internal static void ResizeWindow()
-    {
-        WindowSizeChanged = false;
-        
-        bm = new WriteableBitmap(
-            (int)(instance.ActualWidth / App.Zoom),
-            (int)(instance.ActualHeight / App.Zoom),
-            48, 48,
-            PixelFormats.Bgr32,
-            null);
-        
-        ClearRenderedScene();
-
-        image.Source = bm;
     }
 }

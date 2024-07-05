@@ -1,17 +1,14 @@
-﻿using System.Numerics;
-using System.Windows;
+﻿using System.Windows;
 using PrettyApp.drawable;
 using PrettyApp.lizard;
 using PrettyApp.util;
 using Point = System.Drawing.Point;
 
-namespace PrettyApp;
+namespace PrettyApp.window;
 /*
  * @author Tammie Hladilů, @BluishPinkwhite on GitHub
  */
-/// <summary>
-/// Interaction logic for App.xaml
-/// </summary>
+
 public partial class App : Application
 {
     public const double Zoom = 2.5;
@@ -30,17 +27,10 @@ public partial class App : Application
 
     public void PrepareSimulation()
     {
-        // LineEntity line = new LineEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2, PrettyApp.MainWindow.bm.PixelHeight / 2));
-        // Entities.Add(line);
-
-
         try
         {
-            new LizardEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2,
-                PrettyApp.MainWindow.bm.PixelHeight / 2));
-            
-            // new LizardEntity(new Point(PrettyApp.MainWindow.bm.PixelWidth / 2,
-            //     PrettyApp.MainWindow.bm.PixelHeight / 2));
+            _ = new LizardEntity(new Point(window.MainWindow.bm.PixelWidth / 2,
+                window.MainWindow.bm.PixelHeight / 2));
         }
         catch (Exception e)
         {
@@ -50,7 +40,7 @@ public partial class App : Application
 
     public void RunSimulation()
     {
-        RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 30), () =>
+        _ = RunInBackground(TimeSpan.FromMilliseconds(1000.0 / 30), () =>
         {
             try
             {
@@ -60,7 +50,7 @@ public partial class App : Application
                     entity.UpdatePixelData();
                 }
 
-                PrettyApp.MainWindow.DrawPixels(Entities);
+                DrawManager.DrawPixels(Entities);
             }
             catch (Exception e)
             {
@@ -68,13 +58,13 @@ public partial class App : Application
             }
         });
 
-        RunInBackground(TimeSpan.FromMilliseconds(125.0), () =>
+        _ = RunInBackground(TimeSpan.FromMilliseconds(125.0), () =>
         {
             try
             {
-                if (PrettyApp.MainWindow.WindowSizeChanged)
+                if (window.MainWindow.WindowSizeChanged)
                 {
-                    PrettyApp.MainWindow.ResizeWindow();
+                    window.MainWindow.ResizeWindow();
                 }
                 
                 foreach (Entity entity in Entities)
@@ -111,9 +101,9 @@ public partial class App : Application
 
         List<(int, int, int)> tiles = new List<(int, int, int)>();
 
-        for (int i = 0; i < PrettyApp.MainWindow.bm.PixelWidth; i++)
+        for (int i = 0; i < window.MainWindow.bm.PixelWidth; i++)
         {
-            double terrainHeight = PrettyApp.MainWindow.bm.PixelHeight * 0.9;
+            double terrainHeight = window.MainWindow.bm.PixelHeight * 0.9;
             for (int j = 0; j < coefficients.Length; j++)
             {
                 terrainHeight += Math.Sin(i * j) * coefficients[j];
@@ -121,7 +111,7 @@ public partial class App : Application
 
             int depth = (int)terrainHeight;
 
-            for (int j = 0; j < PrettyApp.MainWindow.bm.PixelHeight; j++)
+            for (int j = 0; j < window.MainWindow.bm.PixelHeight; j++)
             {
                 int color;
                 if (j == depth)
