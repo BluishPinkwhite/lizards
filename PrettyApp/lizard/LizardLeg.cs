@@ -121,8 +121,14 @@ public class LizardLeg : SegmentLineEntity
 
         if ((currentFootLocation - Parent.Body._segments[_attachSegment].Pos).Length() > 0.01f)
         {
+            // move segments
             Util.DoFABRIK(currentFootLocation, Goal, Vector2.Zero, _segments);
+            
+            // update position (for bounding box calculation start location)
+            Pos.X = (int)_segments[0].Pos.X;
+            Pos.Y = (int)_segments[0].Pos.Y;
 
+            // redraw entity
             UpdateRequired = true;
         }
     }

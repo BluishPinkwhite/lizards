@@ -55,7 +55,6 @@ public partial class MainWindow : Window
         try
         {
             app.PrepareSimulation();
-            DrawManager.ClearRenderedScene();
             app.RunSimulation();
         }
         catch (Exception e)

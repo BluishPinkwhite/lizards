@@ -30,60 +30,69 @@ public static class DrawManager
                 // compress bounding boxes:
                 // first dimension: rows (of bm)
                 // second dimension: start column index + end column index of bounding boxes in that row 
-                Dictionary<int, List<Interval>> rowsBoundingBoxes = new Dictionary<int, List<Interval>>();
+                //      - combined into single 32bit int: [31-16] start, [15-0] end
+                Dictionary<int, List<int>> rowsBoundingBoxes = new Dictionary<int, List<int>>();
 
-                // add all in-bounding-box rows to dictionary
+                // add in-bounding-box rows of updated entities to dictionary
                 foreach (Entity entity in entities)
                 {
-                    BoundingBox bounds = entity.GetBoundingBox();
-                    bounds.ClampToScreen(MainWindow.bm.PixelWidth - 1, MainWindow.bm.PixelHeight - 1);
-                    MainWindow.bm.AddDirtyRect(new Int32Rect(bounds.X, bounds.Y, bounds.Width() + 1, bounds.Height() + 1));
-
-                    for (int row = bounds.Y; row <= bounds.Ey; row++)
-                    {
-                        // init row if not initialized
-                        if (!rowsBoundingBoxes.ContainsKey(row))
-                            rowsBoundingBoxes[row] = new List<Interval>();
-                        
-                        // add column interval of this bounding box to this row
-                        rowsBoundingBoxes[row].Add(new Interval(bounds.X, bounds.Ex));
-                    }
-
                     if (entity.HasJustUpdated)
                     {
                         entity.HasJustUpdated = false;
+                        
+                        BoundingBox bounds = entity.GetBoundingBox();
+                        bounds.ClampToScreen(MainWindow.bm.PixelWidth - 1, MainWindow.bm.PixelHeight - 1);
+                        
                         BoundingBox lastBounds = entity.GetLastBoundingBox();
                         lastBounds.ClampToScreen(MainWindow.bm.PixelWidth - 1, MainWindow.bm.PixelHeight - 1);
-                        MainWindow.bm.AddDirtyRect(new Int32Rect(lastBounds.X, lastBounds.Y, lastBounds.Width() + 1,
-                            lastBounds.Height() + 1));
-                        
+
+                        // it is better to combine the bounding boxes for less drawing
+                        BoundingBox combined = Util.CombineBoundingBoxes(bounds, lastBounds);
+                        if (bounds.Area() + lastBounds.Area() > combined.Area())
+                        {
+                            MainWindow.bm.AddDirtyRect(combined.ToRect());
+                        }
+                        // it is not better -> keep the separate ones
+                        else
+                        {
+                            MainWindow.bm.AddDirtyRect(bounds.ToRect());
+                            MainWindow.bm.AddDirtyRect(lastBounds.ToRect());
+                        }
+
                         for (int row = lastBounds.Y; row <= lastBounds.Ey; row++)
                         {
                             if (!rowsBoundingBoxes.ContainsKey(row))
-                                rowsBoundingBoxes[row] = new List<Interval>();
-                            
-                            rowsBoundingBoxes[row].Add(new Interval(lastBounds.X, lastBounds.Ex));
+                                rowsBoundingBoxes[row] = new List<int>();
+
+                            // adding only lastBounds because "current bounds" will be overwritten anyway by pixel data
+                            rowsBoundingBoxes[row].Add(lastBounds.Ex + (lastBounds.X << 16));
                         }
                     }
                 }
-                
+
                 // merge all overlapping intervals in rows
-                foreach (KeyValuePair<int,List<Interval>> keyValuePair in rowsBoundingBoxes)
+                foreach (KeyValuePair<int, List<int>> keyValuePair in rowsBoundingBoxes)
                 {
-                    List<Interval> rowIntervals = keyValuePair.Value;
-                    rowIntervals.Sort((interval, interval1) => interval.Start - interval1.Start);
+                    List<int> rowIntervals = keyValuePair.Value;
+                    rowIntervals.Sort(
+                        (interval1, interval2) => (interval1 >> 16) - (interval2 >> 16));
 
                     int index = 0; // output array index
                     for (int i = 1; i < rowIntervals.Count; i++)
                     {
-                        Interval interval = rowIntervals[index];
-                        Interval intervalNext = rowIntervals[i];
-                        
-                        if (interval.End >= intervalNext.Start) 
+                        int interval = rowIntervals[index];
+                        int intervalNext = rowIntervals[i];
+
+                        int intervalEnd = interval & 0x0000FFFF;
+                        int intervalNextEnd = intervalNext & 0x0000FFFF;
+
+                        // if checked end >= next interval start
+                        if (intervalEnd >= intervalNext >> 16)
                         {
                             // merge intervals
-                            interval.End = Math.Max(interval.End, intervalNext.End);
-                            rowIntervals[index] = interval;
+                            intervalEnd = Math.Max(intervalEnd, intervalNextEnd);
+                            int intervalStart = interval >> 16;
+                            rowIntervals[index] = intervalEnd + (intervalStart << 16);
                         }
                         else
                         {
@@ -93,21 +102,20 @@ public static class DrawManager
                         }
                     }
 
-                    // result is [0..index-1]
+                    // result is [0..index]
                     rowsBoundingBoxes[keyValuePair.Key] = rowIntervals.Take(index + 1).ToList();
                 }
 
 
-
                 // use merged bounding boxes to reset background
-                foreach (KeyValuePair<int, List<Interval>> keyValuePair in rowsBoundingBoxes)
+                foreach (KeyValuePair<int, List<int>> keyValuePair in rowsBoundingBoxes)
                 {
                     int row = keyValuePair.Key;
-                    List<Interval> columns = keyValuePair.Value;
+                    List<int> columns = keyValuePair.Value;
 
-                    foreach (Interval columnInterval in columns)
+                    foreach (int columnInterval in columns)
                     {
-                        ResetRow(row, columnInterval);
+                        ResetRow(row, columnInterval >> 16, columnInterval & 0x0000FFFF);
                     }
                 }
 
@@ -118,12 +126,12 @@ public static class DrawManager
                     Entity entity = entities[i];
                     Dictionary<int, int> data = entity.GetPixelData();
 
-                    foreach (KeyValuePair<int,int> pixel in data)
+                    foreach (KeyValuePair<int, int> pixel in data)
                     {
                         int x = pixel.Key & 0x0000FFFF;
                         int y = pixel.Key >> 16;
                         int color = pixel.Value;
-                        
+
                         if (x < 0 || y < 0 || x >= MainWindow.bm.PixelWidth || y >= MainWindow.bm.PixelHeight)
                         {
                             Console.Out.WriteLine($"Pixel outside image: ({x},{y}), {color:X}, skipping...");
@@ -132,9 +140,11 @@ public static class DrawManager
 
                         IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 
+                        // get correct write location based on coords
                         pBackBuffer += y * MainWindow.bm.BackBufferStride;
                         pBackBuffer += x * 4;
 
+                        // write pixel color
                         *((int*)pBackBuffer) = color;
                     }
                 }
@@ -142,12 +152,13 @@ public static class DrawManager
         }
         finally
         {
+            // allow to show rendered image
             MainWindow.bm.Unlock();
         }
     }
 
-    
-    /** 
+
+    /**
      * CALL ONLY WHEN WritableBitmap IS LOCKED
      */
     private static void ResetBackground(BoundingBox bounds)
@@ -170,18 +181,18 @@ public static class DrawManager
             }
         }
     }
-    
-    
+
+
     /**
      * CALL ONLY WHEN WritableBitmap IS LOCKED
      */
-    private static void ResetRow(int row, Interval columnInterval)
+    private static void ResetRow(int row, int startX, int endX)
     {
         unsafe
         {
             // TODO: block by block cache processing?
 
-            for (int x = columnInterval.Start; x <= columnInterval.End; x++)
+            for (int x = startX; x <= endX; x++)
             {
                 IntPtr pBackBuffer = MainWindow.bm.BackBuffer;
 

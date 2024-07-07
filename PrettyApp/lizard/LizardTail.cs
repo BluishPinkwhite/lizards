@@ -70,11 +70,14 @@ public class LizardTail : SegmentLineEntity
 
         if ((new Vector2(Goal.X, Goal.Y) - _segments[0].Pos).Length() > 0.01f)
         {
+            // move segments
             Util.DoForwardReaching(Goal, _segments, false);
 
+            // update position (for bounding box calculation start location)
             Pos.X = (int)_segments[0].Pos.X;
             Pos.Y = (int)_segments[0].Pos.Y;
 
+            // redraw entity
             UpdateRequired = true;
         }
     }

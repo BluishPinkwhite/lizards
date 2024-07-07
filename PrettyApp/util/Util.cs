@@ -1,4 +1,5 @@
 ﻿using System.Numerics;
+using System.Windows;
 
 namespace PrettyApp.util;
 
@@ -295,5 +296,14 @@ public class Util
         if (l > max)
             max = l;
         return (int)Math.Ceiling(max);
+    }
+
+    public static BoundingBox CombineBoundingBoxes(BoundingBox a, BoundingBox b)
+    {
+        return new BoundingBox(
+            Math.Min(a.X, b.X),
+            Math.Min(a.Y, b.Y),
+            Math.Max(a.Ex, b.Ex),
+            Math.Max(a.Ey, b.Ey));
     }
 }

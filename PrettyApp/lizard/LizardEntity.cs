@@ -44,7 +44,6 @@ public class LizardEntity : Entity
     protected override void RedrawPixelData()
     {
         AddRect((int)_goal.X, (int)_goal.Y, 1, 0xffffff);
-        // AddRect((int)(_segments[0].Pos.X + _stepGoal.X), (int)(_segments[0].Pos.Y + _stepGoal.Y), 2, 0xff0000);
     }
 
     public override void Tick()

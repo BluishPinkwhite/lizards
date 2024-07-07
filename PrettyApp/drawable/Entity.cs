@@ -30,7 +30,7 @@ public abstract class Entity(Point pos)
             HasJustUpdated = true;
 
             LastBounds = new BoundingBox(Bounds.X, Bounds.Y, Bounds.Ex, Bounds.Ey);
-            Bounds = new(Pos.X, Pos.Y, Pos.X, Pos.Y);
+            Bounds = new BoundingBox(Pos.X, Pos.Y, Pos.X, Pos.Y);
 
             PixelData.Clear();
             RedrawPixelData();
@@ -46,9 +46,14 @@ public abstract class Entity(Point pos)
 
     protected void AddPixel(int x, int y, int color)
     {
+        if (x < 0)
+        {
+            
+        }
         if (x < 0 || y < 0 || x >= MainWindow.bm.PixelWidth || y >= MainWindow.bm.PixelHeight)
             return;
 
+        
         PixelData[(y << 16) + x] = color;
 
 
@@ -200,9 +205,13 @@ public abstract class Entity(Point pos)
 
         for (int row = 0; row <= maxY - minY; row++)
         {
-            for (int column = minAndMaxX[row * 2] - 1; column <= minAndMaxX[row * 2 + 1] + 1; column++)
+            for (int column = Math.Max(0, minAndMaxX[row * 2] - 1); 
+                 column <= minAndMaxX[row * 2 + 1] + 1; column++)
             {
-                AddPixel(column, minY + row, color);
+                if (column > 0)
+                {
+                    AddPixel(column, minY + row, color);
+                }
             }
         }
     }
